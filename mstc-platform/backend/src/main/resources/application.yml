@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: mstc-platform
+
+  profiles:
+    active: ${APP_ENV:dev}
+
+  # ── JPA ──────────────────────────────────────────────────────────────────
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate          # Flyway gestiona el schema — nunca auto/create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        default_schema: public
+
+  # ── Flyway ───────────────────────────────────────────────────────────────
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+  # ── Jackson ──────────────────────────────────────────────────────────────
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+  # ── Thymeleaf (templates de email) ───────────────────────────────────────
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: true
+
+# ── Actuator ─────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+
+# ── API ───────────────────────────────────────────────────────────────────────
+api:
+  base-path: /api/v1
+
+# ── Configuración de seguridad MSTC ──────────────────────────────────────────
+mstc:
+  security:
+    encryption:
+      # Clave AES-256 en Base64 (32 bytes). Generar con:
+      # openssl rand -base64 32
+      master-key: ${ENCRYPTION_MASTER_KEY:dGVzdGtleXRlc3RrZXl0ZXN0a2V5dGVzdGtleXRlc3Q=}
+    jwt:
+      # Rutas a los archivos PEM de las claves RSA (generadas en setup)
+      private-key-path: ${JWT_PRIVATE_KEY_PATH:classpath:keys/private_key_dev.pem}
+      public-key-path:  ${JWT_PUBLIC_KEY_PATH:classpath:keys/public_key_dev.pem}
+      expiration-admin-hours: 8
+      expiration-donor-hours: 24
+    bcrypt:
+      strength: 12
+    brute-force:
+      max-attempts: 5
+      lockout-minutes: 15
+  storage:
+    bucket-documents:    mstc-documents
+    bucket-certificates: mstc-certificates
+    bucket-images:       mstc-images
+  whatsapp:
+    number: ${WHATSAPP_NUMBER:573188307155}
+  foundation:
+    nit:   ${FOUNDATION_NIT:}
+    email: ${FOUNDATION_EMAIL:mujeressintechodecristal2025@gmail.com}
+    name:  "Fundación Mujeres sin Techo de Cristal"

@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Josefin+Sans:wght@200;300;400;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Josefin Sans', sans-serif;
+    background-color: #fdf7f2;
+    color: #1a1a2e;
+    overflow-x: hidden;
+  }
+
+  /* Mejora de accesibilidad: focus visible */
+  :focus-visible {
+    outline: 2px solid #c4006b;
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .text-gradient-magenta-gold {
+    background: linear-gradient(135deg, #e0409a, #d4a843);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d1b3d 50%, #1a1a2e 100%);
+  }
+
+  /* Línea decorativa antes del label de sección */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c4006b;
+    font-weight: 400;
+    margin-bottom: 16px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background-color: #c4006b;
+    flex-shrink: 0;
+  }
+
+  /* Animación de entrada para contadores */
+  @keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-count {
+    animation: countUp 0.6s ease both;
+  }
+}
