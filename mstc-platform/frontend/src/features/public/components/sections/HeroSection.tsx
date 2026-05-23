@@ -3,7 +3,7 @@ import { ASSETS } from '@/shared/config/assets'
 
 const STATS = [
   { num: '500+', label: 'Mujeres apoyadas' },
-  { num: '8',    label: 'Años de impacto' },
+  { num: '4',    label: 'Años de impacto' },
   { num: '12',   label: 'Programas activos' },
 ]
 
@@ -25,9 +25,9 @@ export default function HeroSection() {
         aria-hidden="true"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse at 15% 85%, rgba(196,0,107,0.18) 0%, transparent 55%),
-            radial-gradient(ellipse at 85% 15%, rgba(212,168,67,0.10) 0%, transparent 50%),
-            radial-gradient(ellipse at 50% 50%, rgba(196,0,107,0.04) 0%, transparent 70%)
+            radial-gradient(ellipse at 15% 85%, rgba(216,52,212,0.15) 0%, transparent 55%),
+            radial-gradient(ellipse at 85% 15%, rgba(221,103,65,0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(216,52,212,0.04) 0%, transparent 70%)
           `,
         }}
       />
@@ -39,7 +39,7 @@ export default function HeroSection() {
           style={{
             top: '-50%', right: '8%',
             width: '1px', height: '200%',
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(196,0,107,0.25) 40%, rgba(212,168,67,0.15) 60%, transparent 100%)',
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(216,52,212,0.20) 40%, rgba(233,110,230,0.12) 60%, transparent 100%)',
             transform: 'rotate(12deg)',
           }}
         />
@@ -48,7 +48,7 @@ export default function HeroSection() {
           style={{
             top: '-50%', right: '18%',
             width: '1px', height: '200%',
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(196,0,107,0.08) 50%, transparent 100%)',
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(216,52,212,0.06) 50%, transparent 100%)',
             transform: 'rotate(12deg)',
           }}
         />
@@ -175,12 +175,12 @@ export default function HeroSection() {
               }}
             >
               <p className="text-[9px] tracking-[2px] text-white/40 uppercase mb-1">
-                Impacto 2024
+                Cobertura
               </p>
               <p className="font-serif text-[20px] text-white font-semibold leading-none">
-                $120M COP
+                2 departamentos
               </p>
-              <p className="text-[10px] text-magenta-light mt-1">en donaciones recibidas</p>
+              <p className="text-[10px] text-magenta-light mt-1">Risaralda y Quindío</p>
             </div>
 
             {/* Floating card — programas */}

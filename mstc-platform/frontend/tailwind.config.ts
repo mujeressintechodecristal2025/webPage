@@ -9,21 +9,42 @@ export default {
     extend: {
       colors: {
         magenta: {
-          DEFAULT: '#c4006b',
-          light:   '#e0409a',
-          dark:    '#8b0049',
+          DEFAULT: '#d834d4',
+          light:   '#e96ee6',
+          dark:    '#a020a0',
+          vivid:   '#d801ff',
         },
-        cream:       '#fdf7f2',
-        charcoal:    '#1a1a2e',
-        'soft-grey': '#6b6b7b',
-        gold:        '#d4a843',
+        cream:       '#fdfbfe',
+        charcoal:    '#1a0e1f',
+        'soft-grey': '#6b5d6e',
+        gold: {
+          DEFAULT: '#dd6741',
+          light:   '#f6a05e',
+          dark:    '#903d37',
+        },
+        purple: {
+          deep:    '#3e396b',
+          dark:    '#220c27',
+          muted:   '#6a283d',
+        },
+        rose: {
+          50:  '#fef5fe',
+          100: '#fce8fc',
+          200: '#f9cff9',
+          300: '#e96ee6',
+          400: '#d834d4',
+          500: '#b920b5',
+          600: '#a020a0',
+          700: '#7d1a7d',
+          800: '#5c1360',
+          900: '#3d0d40',
+        },
       },
       fontFamily: {
         serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
         sans:  ['"Josefin Sans"', 'system-ui', 'sans-serif'],
       },
       spacing: {
-        // Valores custom que Tailwind no incluye por defecto
         '13': '3.25rem',
         '15': '3.75rem',
         '18': '4.5rem',
@@ -33,16 +54,16 @@ export default {
       maxWidth: {
         '8xl': '88rem',
       },
-      borderOpacity: {
-        '8': '0.08',
-        '12': '0.12',
-        '15': '0.15',
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
       },
       animation: {
         'fade-in-up':    'fadeInUp 0.8s ease both',
         'fade-in-right': 'fadeInRight 0.8s ease 0.15s both',
         'pulse-glow':    'pulseGlow 2.5s ease-in-out infinite',
         'float':         'float 3s ease-in-out infinite',
+        'shimmer':       'shimmer 2s linear infinite',
       },
       keyframes: {
         fadeInUp: {
@@ -61,12 +82,16 @@ export default {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%':      { transform: 'translateY(-6px)' },
         },
+        shimmer: {
+          '0%':   { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
       },
       transitionDuration: {
         '400': '400ms',
       },
-      backgroundOpacity: {
-        '8': '0.08',
+      backdropBlur: {
+        xs: '2px',
       },
     },
   },

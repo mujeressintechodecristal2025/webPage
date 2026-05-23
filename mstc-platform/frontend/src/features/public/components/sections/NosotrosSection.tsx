@@ -44,7 +44,7 @@ export default function NosotrosSection() {
       {/* Línea superior degradada */}
       <div
         className="absolute top-0 left-0 right-0 h-[3px]"
-        style={{ background: 'linear-gradient(90deg, #c4006b 0%, #d4a843 50%, transparent 100%)' }}
+        style={{ background: 'linear-gradient(90deg, #d834d4 0%, #e96ee6 50%, transparent 100%)' }}
         aria-hidden="true"
       />
 
@@ -67,7 +67,8 @@ export default function NosotrosSection() {
           >
             Somos una fundación colombiana sin ánimo de lucro dedicada a acompañar
             a mujeres en situación de vulnerabilidad, brindándoles herramientas,
-            redes de apoyo y oportunidades reales de transformación.
+            redes de apoyo y oportunidades reales de transformación. Con presencia
+            en Risaralda y Quindío.
           </p>
         </div>
 
@@ -116,7 +117,7 @@ export default function NosotrosSection() {
               {/* Comilla decorativa */}
               <span
                 className="absolute -top-4 right-6 font-serif text-[160px] leading-none font-bold pointer-events-none select-none"
-                style={{ color: 'rgba(196,0,107,0.12)', lineHeight: 1 }}
+                style={{ color: 'rgba(216,52,212,0.12)', lineHeight: 1 }}
                 aria-hidden="true"
               >
                 "
@@ -137,7 +138,7 @@ export default function NosotrosSection() {
             {/* Visión */}
             <div
               className="p-8 lg:p-10"
-              style={{ background: 'linear-gradient(135deg, #c4006b 0%, #8b0049 100%)' }}
+              style={{ background: 'linear-gradient(135deg, #d834d4 0%, #a020a0 100%)' }}
             >
               <p className="text-[10px] tracking-[3px] text-white/60 uppercase mb-4 font-medium">
                 Nuestra visión
@@ -159,7 +160,7 @@ export default function NosotrosSection() {
             >
               <div
                 className="w-12 h-12 flex-shrink-0 flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #c4006b, #8b0049)' }}
+                style={{ background: 'linear-gradient(135deg, #d834d4, #a020a0)' }}
                 aria-hidden="true"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
@@ -168,7 +169,7 @@ export default function NosotrosSection() {
               </div>
               <div>
                 <p className="text-[11px] tracking-[2px] uppercase text-soft-grey mb-1">Fundada en</p>
-                <p className="font-serif text-[22px] text-charcoal font-semibold leading-none">2016</p>
+                <p className="font-serif text-[22px] text-charcoal font-semibold leading-none">2021</p>
               </div>
               <div className="w-px h-10 bg-charcoal/10 mx-2" aria-hidden="true" />
               <div>

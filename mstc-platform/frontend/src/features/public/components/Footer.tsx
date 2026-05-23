@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ASSETS } from '@/shared/config/assets'
 
 const NAV_LINKS = ['Inicio', 'Nosotros', 'Proyectos', 'Impacto', 'Contacto']
@@ -35,9 +35,28 @@ const SOCIAL = [
 
 export default function Footer() {
   const year = new Date().getFullYear()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const scrollTo = (id: string) => {
-    document.querySelector(`#${id.toLowerCase()}`)?.scrollIntoView({ behavior: 'smooth' })
+    if (location.pathname !== '/') {
+      navigate('/')
+      setTimeout(() => {
+        const el = document.querySelector(`#${id.toLowerCase()}`)
+        if (el) {
+          const navHeight = 72
+          const top = el.getBoundingClientRect().top + window.scrollY - navHeight
+          window.scrollTo({ top, behavior: 'smooth' })
+        }
+      }, 300)
+    } else {
+      const el = document.querySelector(`#${id.toLowerCase()}`)
+      if (el) {
+        const navHeight = 72
+        const top = el.getBoundingClientRect().top + window.scrollY - navHeight
+        window.scrollTo({ top, behavior: 'smooth' })
+      }
+    }
   }
 
   return (
@@ -46,7 +65,7 @@ export default function Footer() {
       {/* Línea superior */}
       <div
         className="h-[3px] w-full"
-        style={{ background: 'linear-gradient(90deg, #c4006b 0%, #d4a843 50%, #c4006b 100%)' }}
+        style={{ background: 'linear-gradient(90deg, #d834d4 0%, #e96ee6 50%, #d834d4 100%)' }}
         aria-hidden="true"
       />
 
@@ -76,11 +95,12 @@ export default function Footer() {
 
             <p className="text-[13px] text-white/40 leading-relaxed font-light max-w-xs mb-3">
               Eliminando los techos de cristal que limitan el desarrollo y la
-              dignidad de las mujeres en Colombia desde 2016.
+              dignidad de las mujeres en Colombia desde 2021. Con presencia en
+              Risaralda y Quindío.
             </p>
 
             <p className="text-[11px] text-white/30 font-light mb-8">
-              Representante legal: <span className="text-white/50">Mónica Ospina</span>
+              Representante legal: <span className="text-white/50">Mónica Jhoana Ospina</span>
             </p>
 
             {/* Redes sociales */}

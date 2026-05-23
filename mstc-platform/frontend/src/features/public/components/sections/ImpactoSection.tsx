@@ -35,7 +35,7 @@ const STATS = [
     ),
   },
   {
-    value: 8,
+    value: 4,
     suffix: '',
     label: 'Años de impacto',
     description: 'construyendo un Colombia más equitativa',
@@ -128,8 +128,8 @@ export default function ImpactoSection() {
         aria-hidden="true"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse at 20% 50%, rgba(196,0,107,0.10) 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 50%, rgba(212,168,67,0.06) 0%, transparent 60%)
+            radial-gradient(ellipse at 20% 50%, rgba(216,52,212,0.10) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 50%, rgba(233,110,230,0.06) 0%, transparent 60%)
           `,
         }}
       />
@@ -158,7 +158,7 @@ export default function ImpactoSection() {
 
         {/* Nota al pie */}
         <p className="text-center text-[11px] text-white/25 mt-8 tracking-wide">
-          Datos acumulados desde 2016 · Actualizado 2024
+          Datos acumulados desde 2021 · Actualizado 2025
         </p>
       </div>
     </section>

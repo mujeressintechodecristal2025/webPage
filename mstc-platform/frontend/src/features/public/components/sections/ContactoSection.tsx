@@ -224,7 +224,7 @@ export default function ContactoSection() {
               <div className="flex flex-col items-center text-center py-12">
                 <div
                   className="w-16 h-16 flex items-center justify-center mb-6 rounded-full"
-                  style={{ background: 'linear-gradient(135deg, #c4006b, #8b0049)' }}
+                  style={{ background: 'linear-gradient(135deg, #d834d4, #a020a0)' }}
                 >
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

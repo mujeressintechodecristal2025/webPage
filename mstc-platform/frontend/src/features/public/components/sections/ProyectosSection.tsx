@@ -25,7 +25,7 @@ const PROJECTS = [
     description: 'Formación en habilidades técnicas y blandas para mujeres en reincorporación laboral. Incluye mentoría personalizada y conexión con empleadores aliados.',
     tags: ['Formación', 'Empleo', 'Mentoría'],
     Icon: IconFormacion,
-    accentColor: '#c4006b',
+    accentColor: '#d834d4',
   },
   {
     id: 2,
@@ -34,7 +34,7 @@ const PROJECTS = [
     description: 'Apoyo psicosocial y acompañamiento jurídico para mujeres víctimas de violencia intrafamiliar. Red de casas de acogida y orientación legal gratuita.',
     tags: ['Psicosocial', 'Jurídico', 'Protección'],
     Icon: IconProteccion,
-    accentColor: '#8b0049',
+    accentColor: '#a020a0',
   },
   {
     id: 3,
@@ -43,7 +43,7 @@ const PROJECTS = [
     description: 'Incubadora de emprendimientos liderados por mujeres. Formación en finanzas, marketing digital y acceso a microcréditos con tasas preferenciales.',
     tags: ['Emprendimiento', 'Finanzas', 'Microcrédito'],
     Icon: IconEmprendimiento,
-    accentColor: '#d4a843',
+    accentColor: '#dd6741',
   },
 ]
 
@@ -126,7 +126,7 @@ export default function ProyectosSection() {
         {/* Banner CTA — reemplaza el proyecto "Plataforma Digital" */}
         <div
           className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 items-center p-8 lg:p-10"
-          style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #2d1b3d 100%)' }}
+          style={{ background: 'linear-gradient(135deg, #1a0e1f 0%, #2d1535 100%)' }}
         >
           <div>
             <p className="text-[10px] tracking-[2.5px] text-magenta-light uppercase mb-3 font-light">

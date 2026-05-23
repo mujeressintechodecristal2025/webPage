@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
 import { ASSETS } from '@/shared/config/assets'
@@ -15,6 +15,8 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -31,19 +33,38 @@ export default function Navbar() {
 
   const handleNavClick = (href: string) => {
     setMenuOpen(false)
-    // Pequeño delay para que el menú cierre antes del scroll
-    setTimeout(() => {
-      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' })
-    }, 50)
+
+    // Si no estamos en la home, navegar primero y luego hacer scroll
+    if (location.pathname !== '/') {
+      navigate('/')
+      // Esperar a que la home se renderice antes de hacer scroll
+      setTimeout(() => {
+        const el = document.querySelector(href)
+        if (el) {
+          const navHeight = 72
+          const top = el.getBoundingClientRect().top + window.scrollY - navHeight
+          window.scrollTo({ top, behavior: 'smooth' })
+        }
+      }, 300)
+    } else {
+      setTimeout(() => {
+        const el = document.querySelector(href)
+        if (el) {
+          const navHeight = 72
+          const top = el.getBoundingClientRect().top + window.scrollY - navHeight
+          window.scrollTo({ top, behavior: 'smooth' })
+        }
+      }, 50)
+    }
   }
 
   return (
     <nav
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
         scrolled
-          ? 'bg-cream/98 backdrop-blur-md shadow-[0_1px_0_rgba(196,0,107,0.12)]'
-          : 'bg-cream/95 backdrop-blur-sm',
+          ? 'glass-light shadow-[0_1px_0_rgba(216,52,212,0.06)]'
+          : 'bg-cream/90 backdrop-blur-sm',
       )}
       style={{ height: '72px' }}
       role="navigation"

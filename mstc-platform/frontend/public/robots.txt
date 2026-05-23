@@ -1,0 +1,9 @@
+# Robots.txt — Fundación Mujeres sin Techo de Cristal
+# https://www.fundacionmujeressintechodecristal.org
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://www.fundacionmujeressintechodecristal.org/sitemap.xml
