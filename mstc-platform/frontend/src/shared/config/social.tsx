@@ -17,7 +17,7 @@ export const SOCIAL_LINKS = [
   {
     id: 'facebook',
     label: 'Facebook',
-    href: 'https://www.facebook.com/fundacionmstc',
+    href: 'https://web.facebook.com/profile.php?id=61572277466220',
     color: '#1877F2',
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

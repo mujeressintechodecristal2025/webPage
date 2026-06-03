@@ -2,9 +2,9 @@ import Button from '@/shared/components/Button'
 import { ASSETS } from '@/shared/config/assets'
 
 const STATS = [
-  { num: '500+', label: 'Mujeres apoyadas' },
-  { num: '4',    label: 'Años de impacto' },
-  { num: '12',   label: 'Programas activos' },
+  { num: '100+', label: 'Mujeres apoyadas' },
+  { num: '5',    label: 'Años de impacto' },
+  { num: '3',    label: 'Programas activos' },
 ]
 
 export default function HeroSection() {
@@ -85,9 +85,11 @@ export default function HeroSection() {
             className="text-white/60 font-light max-w-lg mb-10 leading-relaxed"
             style={{ fontSize: 'clamp(14px, 1.5vw, 16px)' }}
           >
-            Acompañamos a mujeres en situación de vulnerabilidad para que alcancen
-            su pleno potencial, eliminando los techos de cristal que limitan su
-            desarrollo personal, social y económico.
+            Acompañamos a mujeres de comunidades vulnerables, donde el desarrollo
+            del individuo es el principal objetivo para la realización integral de
+            la mujer en todas las esferas sociales. Nuestro objetivo estratégico es
+            lograr que la mujer adquiera el liderazgo transformador y se convierta
+            en protagonista de su propio destino.
           </p>
 
           {/* CTAs */}
@@ -175,10 +177,10 @@ export default function HeroSection() {
               }}
             >
               <p className="text-[9px] tracking-[2px] text-white/40 uppercase mb-1">
-                Cobertura
+                Desde
               </p>
               <p className="font-serif text-[20px] text-white font-semibold leading-none">
-                2 departamentos
+                2021
               </p>
               <p className="text-[10px] text-magenta-light mt-1">Risaralda y Quindío</p>
             </div>
@@ -192,11 +194,11 @@ export default function HeroSection() {
                 border: '1px solid rgba(196,0,107,0.25)',
               }}
             >
-              <p className="text-[9px] tracking-[2px] text-magenta-light uppercase mb-0.5">
+              <p className="text-[9px] tracking-[2px] text-white/40 uppercase mb-1">
                 Activos
               </p>
               <p className="font-serif text-[18px] text-white font-semibold leading-none">
-                12 programas
+                3 programas
               </p>
             </div>
           </div>

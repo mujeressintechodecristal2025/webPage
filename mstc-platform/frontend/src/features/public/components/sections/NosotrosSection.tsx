@@ -1,25 +1,7 @@
 const VALUES = [
   {
-    title: 'Dignidad',
-    text: 'Cada mujer merece ser tratada con respeto y reconocida en su valor intrínseco.',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 0v18M3 12h18" />
-      </svg>
-    ),
-  },
-  {
-    title: 'Equidad',
-    text: 'Trabajamos para nivelar las condiciones y eliminar las barreras sistémicas.',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h18M3 12h18M3 18h18" />
-      </svg>
-    ),
-  },
-  {
     title: 'Sororidad',
-    text: 'Construimos redes de apoyo entre mujeres para crecer juntas.',
+    text: 'Fomentamos una cultura de apoyo mutuo y empoderamiento colectivo entre mujeres.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -27,11 +9,38 @@ const VALUES = [
     ),
   },
   {
-    title: 'Transparencia',
-    text: 'Rendimos cuentas a nuestra comunidad con información clara y verificable.',
+    title: 'Equidad',
+    text: 'Trabajamos por la justicia social y la igualdad de oportunidades reales, reconociendo y cerrando brechas históricas.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h18M3 12h18M3 18h18" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Resiliencia',
+    text: 'Transformamos los obstáculos en peldaños de crecimiento, impulsando la capacidad de superar la adversidad.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Integridad',
+    text: 'Actuamos con transparencia, ética y coherencia en cada una de nuestras intervenciones y programas.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Innovación Social',
+    text: 'Buscamos soluciones creativas y disruptivas para enfrentar los desafíos de género en el mundo contemporáneo.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
     ),
   },
@@ -66,9 +75,9 @@ export default function NosotrosSection() {
             style={{ fontSize: 'clamp(15px, 1.5vw, 17px)' }}
           >
             Somos una fundación colombiana sin ánimo de lucro dedicada a acompañar
-            a mujeres en situación de vulnerabilidad, brindándoles herramientas,
-            redes de apoyo y oportunidades reales de transformación. Con presencia
-            en Risaralda y Quindío.
+            a mujeres de comunidades vulnerables, donde el desarrollo del individuo
+            es el principal objetivo para la realización integral de la mujer en
+            todas las esferas sociales. Con presencia en Risaralda y Quindío.
           </p>
         </div>
 
@@ -80,10 +89,10 @@ export default function NosotrosSection() {
               className="text-soft-grey font-light leading-relaxed mb-12"
               style={{ fontSize: 'clamp(15px, 1.5vw, 17px)' }}
             >
-              Desde nuestra fundación, hemos trabajado con cientos de mujeres en
-              programas de formación, orientación psicosocial y emprendimiento,
-              creyendo firmemente que el cambio social comienza cuando cada mujer
-              reconoce y ejerce su poder.
+              Nuestro objetivo estratégico es lograr que la mujer adquiera el
+              liderazgo transformador y se convierta en una mujer nueva, siendo
+              plenamente la protagonista de su propio destino, a través de programas
+              educativos, capacitación psicosocial y acompañamiento estratégico.
             </p>
 
             {/* Valores */}
@@ -129,9 +138,11 @@ export default function NosotrosSection() {
                 className="font-serif font-light italic text-white leading-relaxed relative z-10"
                 style={{ fontSize: 'clamp(18px, 2vw, 22px)' }}
               >
-                Acompañar a mujeres en situación de vulnerabilidad para que alcancen
-                su pleno potencial, eliminando los techos de cristal que limitan su
-                desarrollo personal, social y económico.
+                Impulsar el crecimiento integral y el liderazgo de las mujeres,
+                eliminando las barreras invisibles que limitan su desarrollo
+                profesional y personal, a través de programas educativos,
+                capacitación psicosocial, acompañamiento estratégico y la incidencia
+                social.
               </blockquote>
             </div>
 
@@ -147,9 +158,11 @@ export default function NosotrosSection() {
                 className="text-white font-light leading-relaxed"
                 style={{ fontSize: 'clamp(14px, 1.5vw, 16px)' }}
               >
-                Ser la organización de referencia en Colombia en el empoderamiento
-                femenino, construyendo una sociedad donde ninguna mujer enfrente
-                barreras invisibles para alcanzar sus sueños.
+                Para el año 2030, ser la organización referente en la transformación
+                de entornos equitativos, logrando que el concepto «techo de cristal»
+                sea cosa del pasado. Aspiramos a una sociedad donde el talento y la
+                ambición de las mujeres no tengan límites impuestos, consolidando una
+                red de liderazgo femenino e impacto social.
               </p>
             </div>
 

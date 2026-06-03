@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 const STATS = [
   {
-    value: 500,
+    value: 100,
     suffix: '+',
     label: 'Mujeres apoyadas',
     description: 'han transformado su vida con nuestros programas',
@@ -13,10 +13,10 @@ const STATS = [
     ),
   },
   {
-    value: 12,
+    value: 3,
     suffix: '',
     label: 'Programas activos',
-    description: 'en formación, protección y emprendimiento',
+    description: 'en formación, bienestar y emprendimiento',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -24,21 +24,22 @@ const STATS = [
     ),
   },
   {
-    value: 45,
+    value: 2,
     suffix: '',
-    label: 'Aliados estratégicos',
-    description: 'empresas e instituciones que creen en la causa',
+    label: 'Departamentos',
+    description: 'presencia en Risaralda y Quindío',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
   },
   {
-    value: 4,
+    value: 5,
     suffix: '',
     label: 'Años de impacto',
-    description: 'construyendo un Colombia más equitativa',
+    description: 'construyendo una Colombia más equitativa',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -158,7 +159,7 @@ export default function ImpactoSection() {
 
         {/* Nota al pie */}
         <p className="text-center text-[11px] text-white/25 mt-8 tracking-wide">
-          Datos acumulados desde 2021 · Actualizado 2025
+          Datos acumulados desde 2021 · Actualizado 2026
         </p>
       </div>
     </section>

@@ -79,6 +79,6 @@ mstc:
   whatsapp:
     number: ${WHATSAPP_NUMBER:573188307155}
   foundation:
-    nit:   ${FOUNDATION_NIT:}
+    nit:   ${FOUNDATION_NIT:901907058-9}
     email: ${FOUNDATION_EMAIL:mujeressintechodecristal2025@gmail.com}
     name:  "Fundación Mujeres sin Techo de Cristal"

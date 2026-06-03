@@ -58,3 +58,19 @@ desktop.ini
 .vscode/
 *.swp
 *.swo
+
+# ===========================
+# Archivos del proyecto raíz (no son parte del código)
+# ===========================
+*.docx
+*.pdf
+*.jpeg
+*.jpg
+../*.md
+../read-docx.js
+../DATOS_REQUERIDOS_SITIO_WEB*.md
+../Propuesta_Transformacion_Digital*
+../fundacion_mstc_fase1.html
+../*.jpeg
+../.kiro/
+../.vscode/
