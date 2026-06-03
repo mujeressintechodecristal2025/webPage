@@ -1,0 +1,76 @@
+# ===========================
+# Backend — Java / Maven
+# ===========================
+backend/target/
+backend/.gradle/
+backend/build/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.class
+backend/*.jar
+backend/*.war
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.idea/
+backend/*.iml
+backend/HELP.md
+
+# ===========================
+# Frontend — Node / Vite
+# ===========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env.local
+frontend/.env.production.local
+frontend/coverage/
+
+# ===========================
+# Entornos y Secretos
+# ===========================
+.env
+.env.local
+.env.*.local
+*.env
+secrets/
+*.pem
+*.key
+*.p12
+*.jks
+
+# ===========================
+# Docker
+# ===========================
+infrastructure/data/
+
+# ===========================
+# Sistema Operativo
+# ===========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===========================
+# IDEs
+# ===========================
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# ===========================
+# Archivos del proyecto raíz (no son parte del código)
+# ===========================
+*.docx
+*.pdf
+*.jpeg
+*.jpg
+../*.md
+../read-docx.js
+../DATOS_REQUERIDOS_SITIO_WEB*.md
+../Propuesta_Transformacion_Digital*
+../fundacion_mstc_fase1.html
+../*.jpeg
+../.kiro/
+../.vscode/

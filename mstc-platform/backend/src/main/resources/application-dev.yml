@@ -1,0 +1,69 @@
+# ============================================================
+# Configuración de DESARROLLO — application-dev.yml
+# Usar con: docker compose up -d (infraestructura local)
+# ============================================================
+
+spring:
+  datasource:
+    url:      jdbc:postgresql://localhost:5432/mstc_db
+    username: mstc_user
+    password: mstc_dev_password
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+
+  data:
+    redis:
+      host:     localhost
+      port:     6379
+      password: mstc_redis_dev
+      timeout:  2000ms
+
+  mail:
+    host:     localhost
+    port:     1025          # MailHog para desarrollo
+    username: ""
+    password: ""
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level:
+    org.mstc: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.flywaydb: INFO
+
+# ── S3 / MinIO local ─────────────────────────────────────────────────────────
+mstc:
+  storage:
+    endpoint:         http://localhost:9000
+    access-key:       mstc_minio_user
+    secret-key:       mstc_minio_password
+    region:           us-east-1
+    path-style-access: true   # Requerido para MinIO
+
+# ── Pasarelas de pago (sandbox) ───────────────────────────────────────────────
+payment:
+  nequi:
+    base-url:      https://sandbox.nequi.com.co
+    client-id:     ${NEQUI_CLIENT_ID:dev_client_id}
+    client-secret: ${NEQUI_CLIENT_SECRET:dev_secret}
+    webhook-secret: ${NEQUI_WEBHOOK_SECRET:dev_webhook_secret}
+  daviplata:
+    base-url:      https://sandbox.daviplata.com
+    api-key:       ${DAVIPLATA_API_KEY:dev_api_key}
+    webhook-secret: ${DAVIPLATA_WEBHOOK_SECRET:dev_webhook_secret}
+  pse:
+    base-url:      https://sandbox.achcolombia.com.co
+    merchant-id:   ${PSE_MERCHANT_ID:dev_merchant}
+    api-key:       ${PSE_API_KEY:dev_api_key}
+    webhook-secret: ${PSE_WEBHOOK_SECRET:dev_webhook_secret}

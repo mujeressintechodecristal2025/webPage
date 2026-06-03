@@ -1,0 +1,3 @@
+Este archivo es un placeholder. El gradle-wrapper.jar real se descarga al ejecutar:
+  gradle wrapper --gradle-version 8.9
+O se puede usar una instalación local de Gradle.

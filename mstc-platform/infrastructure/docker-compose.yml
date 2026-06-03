@@ -1,0 +1,66 @@
+version: '3.9'
+
+# ============================================================
+# Infraestructura local para desarrollo — Fase 2
+# Uso: docker compose up -d
+# ============================================================
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: mstc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       mstc_db
+      POSTGRES_USER:     mstc_user
+      POSTGRES_PASSWORD: mstc_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mstc_user -d mstc_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: mstc-redis
+    restart: unless-stopped
+    command: redis-server --requirepass mstc_redis_dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--pass", "mstc_redis_dev", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: mstc-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER:     mstc_minio_user
+      MINIO_ROOT_PASSWORD: mstc_minio_password
+    ports:
+      - "9000:9000"   # API S3
+      - "9001:9001"   # Consola web
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
