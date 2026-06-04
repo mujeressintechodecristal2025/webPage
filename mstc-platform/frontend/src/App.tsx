@@ -9,9 +9,11 @@ import NotFoundPage from '@/shared/components/NotFoundPage'
 // import DonorPortalPage from '@/features/donor-portal/pages/DonorPortalPage'
 // import AdminPage from '@/features/admin/pages/AdminPage'
 
+const basename = import.meta.env.BASE_URL || '/'
+
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         {/* Rutas públicas — Fase 1 */}
         <Route element={<PublicLayout />}>
