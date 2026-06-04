@@ -85,11 +85,10 @@ export default function HeroSection() {
             className="text-white/60 font-light max-w-lg mb-10 leading-relaxed"
             style={{ fontSize: 'clamp(14px, 1.5vw, 16px)' }}
           >
-            Acompañamos a mujeres de comunidades vulnerables, donde el desarrollo
-            del individuo es el principal objetivo para la realización integral de
-            la mujer en todas las esferas sociales. Nuestro objetivo estratégico es
-            lograr que la mujer adquiera el liderazgo transformador y se convierta
-            en protagonista de su propio destino.
+            Impulsamos el crecimiento integral y el liderazgo de mujeres en
+            comunidades vulnerables de Risaralda y Quindío, a través de programas
+            de formación, capacitación psicosocial y emprendimiento. Porque cada
+            mujer merece ser protagonista de su propio destino.
           </p>
 
           {/* CTAs */}
