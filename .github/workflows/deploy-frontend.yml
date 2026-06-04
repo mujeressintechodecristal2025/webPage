@@ -47,6 +47,7 @@ jobs:
           VITE_WHATSAPP_NUMBER: '573188307155'
           VITE_FORM_ENDPOINT: ${{ secrets.VITE_FORM_ENDPOINT }}
           VITE_APP_ENV: production
+          VITE_BASE_URL: '/'
         run: npm run build
 
       - name: Copy index.html as 404.html

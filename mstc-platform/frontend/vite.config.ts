@@ -6,7 +6,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   // base: '/mstc-platform/' // Descomentar si se despliega en GitHub Pages sin dominio personalizado
-  base: '/',
+  base: process.env.VITE_BASE_URL || '/webPage/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
