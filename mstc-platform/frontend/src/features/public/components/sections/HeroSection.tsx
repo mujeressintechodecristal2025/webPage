@@ -20,73 +20,80 @@ export default function HeroSection() {
   return (
     <section
       id="inicio"
-      className="min-h-screen relative overflow-hidden flex items-center"
-      style={{ paddingTop: '72px', background: 'linear-gradient(165deg, #f8fafc 0%, #faf5ff 40%, #f8fafc 100%)' }}
+      className="min-h-screen bg-hero relative overflow-hidden flex items-center"
+      style={{ paddingTop: '72px' }}
       aria-label="Sección principal"
     >
-      {/* Elementos decorativos orgánicos — tendencia 2026 */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        {/* Blob superior derecho */}
+      {/* Gradientes de fondo */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          backgroundImage: `
+            radial-gradient(ellipse at 15% 85%, rgba(192,38,211,0.15) 0%, transparent 55%),
+            radial-gradient(ellipse at 85% 15%, rgba(249,115,22,0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(192,38,211,0.04) 0%, transparent 70%)
+          `,
+        }}
+      />
+
+      {/* Líneas decorativas */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div
-          className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full opacity-[0.07]"
-          style={{ background: 'radial-gradient(circle, #c026d3 0%, transparent 70%)' }}
-        />
-        {/* Blob inferior izquierdo */}
-        <div
-          className="absolute -bottom-48 -left-48 w-[600px] h-[600px] rounded-full opacity-[0.05]"
-          style={{ background: 'radial-gradient(circle, #f97316 0%, transparent 70%)' }}
-        />
-        {/* Grid sutil de puntos */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute"
           style={{
-            backgroundImage: 'radial-gradient(circle, #0f172a 1px, transparent 1px)',
-            backgroundSize: '32px 32px',
+            top: '-50%', right: '8%',
+            width: '1px', height: '200%',
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(192,38,211,0.20) 40%, rgba(232,121,249,0.12) 60%, transparent 100%)',
+            transform: 'rotate(12deg)',
+          }}
+        />
+        <div
+          className="absolute"
+          style={{
+            top: '-50%', right: '18%',
+            width: '1px', height: '200%',
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(192,38,211,0.06) 50%, transparent 100%)',
+            transform: 'rotate(12deg)',
           }}
         />
       </div>
 
-      <div className="w-full max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center py-16 lg:py-24 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center py-16 lg:py-24">
 
-        {/* ── Columna izquierda: Textos ── */}
-        <div className="max-w-xl animate-fade-in-up">
+        {/* ── Columna izquierda ── */}
+        <div className="relative z-10 animate-fade-in-up">
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2.5 bg-magenta/8 border border-magenta/15 px-4 py-2 rounded-full mb-8">
-            <span className="w-2 h-2 rounded-full bg-magenta animate-pulse" aria-hidden="true" />
-            <span className="text-[10px] tracking-[2px] uppercase text-magenta font-medium">
-              Fundación sin ánimo de lucro
+          {/* Badge institucional */}
+          <div className="inline-flex items-center gap-2.5 border border-magenta/30 bg-magenta/5 px-4 py-2 mb-8 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-magenta-light animate-pulse" aria-hidden="true" />
+            <span className="text-[10px] tracking-[2.5px] uppercase text-magenta-light font-light">
+              Fundación sin ánimo de lucro · Colombia
             </span>
           </div>
 
+          {/* Título principal */}
           <h1
-            className="font-serif font-bold text-charcoal leading-[1.02] mb-7 tracking-tight"
-            style={{ fontSize: 'clamp(42px, 5.5vw, 76px)' }}
+            className="font-serif font-light text-white leading-[1.05] mb-6"
+            style={{ fontSize: 'clamp(44px, 5vw, 76px)' }}
           >
-            Rompiendo<br />
-            barreras,<br />
-            <span className="relative inline-block">
-              <span className="relative z-10">construyendo</span>
-              {/* Línea decorativa debajo */}
-              <span
-                className="absolute bottom-1 left-0 w-full h-3 -z-0 opacity-20 rounded-sm"
-                style={{ background: 'linear-gradient(90deg, #c026d3, #f97316)' }}
-                aria-hidden="true"
-              />
-            </span>
+            Rompiendo{' '}
+            <em className="italic text-magenta-light not-italic">barreras,</em>
             <br />
-            <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #c026d3, #d946ef)' }}>
-              futuros
-            </span>
+            <strong className="font-bold text-gradient-magenta-gold">
+              construyendo futuros
+            </strong>
           </h1>
 
+          {/* Descripción */}
           <p
-            className="text-soft-grey font-light max-w-md mb-10 leading-[1.8]"
-            style={{ fontSize: 'clamp(15px, 1.4vw, 17px)' }}
+            className="text-white/60 font-light max-w-lg mb-10 leading-relaxed"
+            style={{ fontSize: 'clamp(14px, 1.5vw, 16px)' }}
           >
             Impulsamos el crecimiento integral y el liderazgo de mujeres en
             comunidades vulnerables de Colombia, a través de programas de formación,
-            capacitación psicosocial y emprendimiento.
+            capacitación psicosocial y emprendimiento. Porque cada mujer merece ser
+            protagonista de su propio destino.
           </p>
 
           {/* CTAs */}
@@ -94,30 +101,33 @@ export default function HeroSection() {
             <Button
               variant="primary"
               size="lg"
-              className="rounded-full shadow-[0_8px_30px_rgba(192,38,211,0.25)]"
               onClick={() => scrollTo('#contacto')}
               aria-label="Ir a sección de donaciones"
             >
               Quiero donar
             </Button>
-            <button
+            <Button
+              variant="outline"
+              size="lg"
               onClick={() => scrollTo('#nosotros')}
-              className="border border-charcoal/20 text-charcoal hover:border-magenta hover:text-magenta font-sans text-[11px] tracking-[2px] uppercase px-9 py-[18px] rounded-full transition-all duration-300"
               aria-label="Conocer más sobre la fundación"
             >
               Conocer más
-            </button>
+            </Button>
           </div>
 
           {/* Estadísticas */}
-          <div className="flex flex-wrap gap-10 pt-8 border-t border-charcoal/8">
+          <div
+            className="flex flex-wrap gap-8 pt-8"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}
+          >
             {STATS.map((stat, i) => (
               <div key={stat.label} style={{ animationDelay: `${i * 0.15}s` }} className="animate-count">
-                <p className="font-serif font-bold leading-none mb-1.5 text-transparent bg-clip-text"
-                   style={{ fontSize: 'clamp(30px, 3vw, 42px)', backgroundImage: 'linear-gradient(135deg, #c026d3, #86198f)' }}>
+                <p className="font-serif font-semibold text-magenta-light leading-none mb-1"
+                   style={{ fontSize: 'clamp(28px, 3vw, 40px)' }}>
                   {stat.num}
                 </p>
-                <p className="text-[10px] tracking-[2px] text-soft-grey/70 uppercase font-medium">
+                <p className="text-[10px] tracking-[2px] text-white/40 uppercase">
                   {stat.label}
                 </p>
               </div>
@@ -125,76 +135,72 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* ── Columna derecha: Composición visual ── */}
-        <div className="hidden lg:flex items-center justify-center relative animate-fade-in-right">
+        {/* ── Columna derecha — Visual ── */}
+        <div className="hidden lg:flex items-center justify-center relative z-10 animate-fade-in-right">
           <div className="relative w-full max-w-md">
 
-            {/* Fondo geométrico abstracto */}
-            <div className="absolute inset-0 -m-6" aria-hidden="true">
-              <div
-                className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-[0.06]"
-                style={{ background: 'radial-gradient(circle, #c026d3, transparent 70%)' }}
+            {/* Marco decorativo exterior */}
+            <div
+              className="absolute -top-6 -right-6 w-full h-full border border-magenta/20 rounded-sm"
+              aria-hidden="true"
+            />
+            {/* Marco decorativo interior */}
+            <div
+              className="absolute -top-3 -right-3 w-full h-full border border-gold/10 rounded-sm"
+              aria-hidden="true"
+            />
+
+            {/* Imagen principal */}
+            <div className="relative overflow-hidden rounded-sm bg-charcoal/50">
+              <img
+                src={ASSETS.logo}
+                alt="Fundación Mujeres sin Techo de Cristal"
+                className="w-full h-auto block"
               />
+              {/* Overlay sutil */}
               <div
-                className="absolute bottom-8 left-4 w-40 h-40 rounded-full opacity-[0.08]"
-                style={{ background: 'radial-gradient(circle, #f97316, transparent 70%)' }}
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(to top, rgba(15,23,42,0.4) 0%, transparent 50%)',
+                }}
+                aria-hidden="true"
               />
             </div>
 
-            {/* Logo principal — composición limpia */}
-            <div className="relative z-10 flex items-center justify-center">
-              <div className="relative">
-                {/* Anillo exterior decorativo */}
-                <div
-                  className="absolute -inset-6 rounded-full opacity-10"
-                  style={{ border: '1px solid #c026d3' }}
-                  aria-hidden="true"
-                />
-                {/* Anillo medio */}
-                <div
-                  className="absolute -inset-12 rounded-full opacity-5"
-                  style={{ border: '1px dashed #c026d3' }}
-                  aria-hidden="true"
-                />
-
-                {/* Contenedor del logo */}
-                <div className="w-72 h-72 rounded-full bg-white shadow-[0_20px_60px_rgba(192,38,211,0.08),0_8px_24px_rgba(0,0,0,0.04)] flex items-center justify-center p-8 border border-charcoal/5">
-                  <img
-                    src={ASSETS.logo}
-                    alt="Fundación Mujeres sin Techo de Cristal"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Tarjeta flotante: Programas activos */}
-            <div className="absolute -left-6 top-8 bg-white/95 backdrop-blur-md px-5 py-4 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06)] border border-white z-20">
-              <span className="text-[9px] text-soft-grey font-semibold tracking-[2px] uppercase block mb-1">
-                Activos
-              </span>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-bold text-gold">3</span>
-                <span className="text-sm font-semibold text-charcoal">programas</span>
-              </div>
-            </div>
-
-            {/* Tarjeta flotante: Desde 2021 */}
-            <div className="absolute -right-4 bottom-16 bg-white/95 backdrop-blur-md px-5 py-4 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06)] border border-white z-20">
-              <span className="text-[9px] text-soft-grey font-semibold tracking-[2px] uppercase block mb-1">
+            {/* Floating card — desde */}
+            <div
+              className="absolute -bottom-6 -left-8 px-5 py-4 min-w-[160px] rounded-sm"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              }}
+            >
+              <p className="text-[9px] tracking-[2px] text-white/40 uppercase mb-1">
                 Desde
-              </span>
-              <span className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #c026d3, #86198f)' }}>
+              </p>
+              <p className="font-serif text-[20px] text-white font-semibold leading-none">
                 2021
-              </span>
+              </p>
+              <p className="text-[10px] text-magenta-light mt-1">Eje Cafetero, Colombia</p>
             </div>
 
-            {/* Tarjeta flotante: Colombia */}
-            <div className="absolute left-12 -bottom-4 bg-white/95 backdrop-blur-md px-4 py-3 rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06)] border border-white z-20">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🇨🇴</span>
-                <span className="text-[11px] font-semibold text-charcoal tracking-wide">Colombia</span>
-              </div>
+            {/* Floating card — programas */}
+            <div
+              className="absolute -top-6 -left-6 px-4 py-3 rounded-sm"
+              style={{
+                background: 'rgba(192,38,211,0.15)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(192,38,211,0.25)',
+              }}
+            >
+              <p className="text-[9px] tracking-[2px] text-white/40 uppercase mb-1">
+                Activos
+              </p>
+              <p className="font-serif text-[18px] text-white font-semibold leading-none">
+                3 programas
+              </p>
             </div>
           </div>
         </div>
@@ -203,13 +209,11 @@ export default function HeroSection() {
       {/* Scroll indicator */}
       <button
         onClick={() => scrollTo('#nosotros')}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-soft-grey/30 hover:text-magenta transition-colors group"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 hover:text-white/60 transition-colors group"
         aria-label="Desplazarse hacia abajo"
       >
-        <span className="text-[9px] tracking-[3px] uppercase font-medium">Explorar</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-float">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
+        <span className="text-[9px] tracking-[3px] uppercase">Explorar</span>
+        <div className="w-px h-10 bg-gradient-to-b from-white/30 to-transparent group-hover:from-white/60 transition-all" />
       </button>
     </section>
   )
