@@ -63,8 +63,8 @@ export default function Navbar() {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
         scrolled
-          ? 'glass-light shadow-[0_1px_0_rgba(216,52,212,0.06)]'
-          : 'bg-cream/90 backdrop-blur-sm',
+          ? 'bg-cream shadow-sm border-b border-charcoal/5'
+          : 'bg-cream',
       )}
       style={{ height: '72px' }}
       role="navigation"
@@ -106,7 +106,7 @@ export default function Navbar() {
         {/* CTA desktop */}
         <button
           onClick={() => handleNavClick('#contacto')}
-          className="hidden md:inline-flex items-center gap-2 bg-magenta text-white px-5 py-2.5 text-[10px] tracking-[2px] uppercase font-medium hover:bg-magenta-dark active:scale-95 transition-all duration-200"
+          className="hidden md:inline-flex items-center gap-2 bg-magenta text-white px-6 py-2.5 text-[10px] tracking-[2px] uppercase font-semibold hover:bg-magenta-dark active:scale-95 transition-all duration-200 rounded shadow-sm"
           aria-label="Ir a sección de donaciones"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
