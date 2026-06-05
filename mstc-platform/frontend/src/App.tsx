@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import PublicLayout from '@/features/public/layouts/PublicLayout'
 import HomePage from '@/features/public/pages/HomePage'
 import PrivacyPolicyPage from '@/features/public/pages/PrivacyPolicyPage'
+import TransparenciaPage from '@/features/public/pages/TransparenciaPage'
 import NotFoundPage from '@/shared/components/NotFoundPage'
 
 // Fase 2 — se descomenta cuando el backend esté disponible
@@ -19,6 +20,7 @@ function App() {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/politica-de-privacidad" element={<PrivacyPolicyPage />} />
+          <Route path="/transparencia" element={<TransparenciaPage />} />
         </Route>
 
         {/* 404 */}

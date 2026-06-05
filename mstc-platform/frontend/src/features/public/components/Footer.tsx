@@ -154,12 +154,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/transparencia"
                   className="text-[13px] text-white/45 hover:text-white transition-colors font-light tracking-wide"
                 >
                   Transparencia RTE-DIAN
-                </a>
+                </Link>
               </li>
               <li>
                 <a
