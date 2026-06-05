@@ -77,7 +77,7 @@ export default function NosotrosSection() {
             Somos una fundación colombiana sin ánimo de lucro dedicada a acompañar
             a mujeres de comunidades vulnerables, donde el desarrollo del individuo
             es el principal objetivo para la realización integral de la mujer en
-            todas las esferas sociales. Con presencia en Risaralda y Quindío.
+            todas las esferas sociales.
           </p>
         </div>
 

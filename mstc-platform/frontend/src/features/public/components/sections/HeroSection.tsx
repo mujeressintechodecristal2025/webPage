@@ -86,9 +86,9 @@ export default function HeroSection() {
             style={{ fontSize: 'clamp(14px, 1.5vw, 16px)' }}
           >
             Impulsamos el crecimiento integral y el liderazgo de mujeres en
-            comunidades vulnerables de Risaralda y Quindío, a través de programas
-            de formación, capacitación psicosocial y emprendimiento. Porque cada
-            mujer merece ser protagonista de su propio destino.
+            comunidades vulnerables de Colombia, a través de programas de formación,
+            capacitación psicosocial y emprendimiento. Porque cada mujer merece ser
+            protagonista de su propio destino.
           </p>
 
           {/* CTAs */}
@@ -181,7 +181,7 @@ export default function HeroSection() {
               <p className="font-serif text-[20px] text-white font-semibold leading-none">
                 2021
               </p>
-              <p className="text-[10px] text-magenta-light mt-1">Risaralda y Quindío</p>
+              <p className="text-[10px] text-magenta-light mt-1">Eje Cafetero, Colombia</p>
             </div>
 
             {/* Floating card — programas */}

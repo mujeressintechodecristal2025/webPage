@@ -95,8 +95,7 @@ export default function Footer() {
 
             <p className="text-[13px] text-white/40 leading-relaxed font-light max-w-xs mb-3">
               Eliminando los techos de cristal que limitan el desarrollo y la
-              dignidad de las mujeres en Colombia desde 2021. Con presencia en
-              Risaralda y Quindío.
+              dignidad de las mujeres en Colombia desde 2021.
             </p>
 
             <p className="text-[11px] text-white/30 font-light mb-8">
