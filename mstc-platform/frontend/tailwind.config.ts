@@ -9,18 +9,18 @@ export default {
     extend: {
       colors: {
         magenta: {
-          DEFAULT: '#d834d4',
-          light:   '#e96ee6',
-          dark:    '#a020a0',
-          vivid:   '#d801ff',
+          DEFAULT: '#c026d3',
+          light:   '#e879f9',
+          dark:    '#86198f',
+          vivid:   '#d946ef',
         },
-        cream:       '#fdfbfe',
-        charcoal:    '#1a0e1f',
-        'soft-grey': '#6b5d6e',
+        cream:       '#f8fafc',
+        charcoal:    '#0f172a',
+        'soft-grey': '#64748b',
         gold: {
-          DEFAULT: '#dd6741',
-          light:   '#f6a05e',
-          dark:    '#903d37',
+          DEFAULT: '#f97316',
+          light:   '#fdba74',
+          dark:    '#c2410c',
         },
         purple: {
           deep:    '#3e396b',
