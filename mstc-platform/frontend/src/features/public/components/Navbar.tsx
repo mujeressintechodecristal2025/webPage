@@ -80,8 +80,8 @@ export default function Navbar() {
             className="h-10 w-10 object-cover rounded-full ring-2 ring-magenta/20"
           />
           <span className="hidden sm:block font-serif text-[15px] text-charcoal font-light leading-tight">
-            Fundación<br />
-            <strong className="font-semibold text-magenta text-[13px] tracking-wide">MSTC</strong>
+            Mujeres sin<br />
+            <strong className="font-semibold text-magenta text-[13px] tracking-wide">Techo de Cristal</strong>
           </span>
         </Link>
 

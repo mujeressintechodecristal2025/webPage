@@ -22,8 +22,8 @@
 
   body {
     font-family: 'Josefin Sans', sans-serif;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #fdfbfe;
+    color: #1a0e1f;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -31,7 +31,7 @@
 
   /* Accesibilidad: focus visible */
   :focus-visible {
-    outline: 2px solid #c026d3;
+    outline: 2px solid #d834d4;
     outline-offset: 3px;
     border-radius: 2px;
   }
@@ -44,32 +44,32 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(192, 38, 211, 0.25);
+    background: rgba(216, 52, 212, 0.25);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(192, 38, 211, 0.45);
+    background: rgba(216, 52, 212, 0.45);
   }
 }
 
 @layer utilities {
   /* Gradiente de marca — fucsia vibrante a púrpura */
   .text-gradient-brand {
-    background: linear-gradient(135deg, #c026d3 0%, #e879f9 50%, #86198f 100%);
+    background: linear-gradient(135deg, #d834d4 0%, #e96ee6 50%, #a020a0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-gradient-magenta-gold {
-    background: linear-gradient(135deg, #c026d3, #f97316);
+    background: linear-gradient(135deg, #d834d4, #dd6741);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .bg-hero {
-    background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
+    background: linear-gradient(160deg, #1a0e1f 0%, #2d1535 40%, #1a0e1f 100%);
   }
 
   /* Glass morphism */
@@ -81,10 +81,10 @@
   }
 
   .glass-light {
-    background: rgba(248, 250, 252, 0.88);
+    background: rgba(253, 251, 254, 0.88);
     backdrop-filter: blur(20px) saturate(1.3);
     -webkit-backdrop-filter: blur(20px) saturate(1.3);
-    border: 1px solid rgba(192, 38, 211, 0.06);
+    border: 1px solid rgba(216, 52, 212, 0.06);
   }
 
   /* Label de sección */
@@ -95,7 +95,7 @@
     font-size: 10px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: #c026d3;
+    color: #d834d4;
     font-weight: 400;
     margin-bottom: 16px;
   }
@@ -105,7 +105,7 @@
     display: block;
     width: 32px;
     height: 1px;
-    background: linear-gradient(90deg, #c026d3, #e879f9);
+    background: linear-gradient(90deg, #d834d4, #e96ee6);
     flex-shrink: 0;
   }
 
@@ -121,13 +121,13 @@
 
   /* Glow para elementos interactivos */
   .glow-magenta {
-    box-shadow: 0 0 20px rgba(192, 38, 211, 0.15),
-                0 0 60px rgba(192, 38, 211, 0.05);
+    box-shadow: 0 0 20px rgba(216, 52, 212, 0.15),
+                0 0 60px rgba(216, 52, 212, 0.05);
   }
 
   .glow-magenta-hover:hover {
-    box-shadow: 0 0 30px rgba(192, 38, 211, 0.25),
-                0 0 80px rgba(192, 38, 211, 0.08);
+    box-shadow: 0 0 30px rgba(216, 52, 212, 0.25),
+                0 0 80px rgba(216, 52, 212, 0.08);
   }
 
   /* Grain texture para profundidad */
