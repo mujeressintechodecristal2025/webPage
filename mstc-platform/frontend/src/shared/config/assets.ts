@@ -7,8 +7,11 @@
 const base = import.meta.env.BASE_URL || '/'
 
 export const ASSETS = {
-  /** Logo principal — PNG con fondo transparente, 400×400 px */
-  logo: `${base}images/logo.png`,
+  /** Logo principal — WebP optimizado, 400×400 px */
+  logo: `${base}images/logo.webp`,
+
+  /** Logo pequeño para navbar — WebP, 80×80 px */
+  logoSm: `${base}images/logo-sm.webp`,
 
   /** Imagen del hero — WebP o JPG, 800×600 px, máx 200 KB */
   hero: `${base}images/hero.webp`,

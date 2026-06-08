@@ -39,7 +39,7 @@ export default function WhatsAppFloat() {
 
       {/* Botón circular */}
       <div
-        className="w-14 h-14 rounded-full flex items-center justify-center animate-pulse-glow group-hover:scale-110 active:scale-95 transition-transform duration-200"
+        className="w-14 h-14 rounded-full flex items-center justify-center group-hover:scale-110 active:scale-95 transition-transform duration-200 animate-float"
         style={{
           background: 'linear-gradient(135deg, #25D366, #128C7E)',
           boxShadow: '0 4px 20px rgba(37,211,102,0.35)',

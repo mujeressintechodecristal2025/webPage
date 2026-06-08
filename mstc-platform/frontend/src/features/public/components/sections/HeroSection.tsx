@@ -155,6 +155,8 @@ export default function HeroSection() {
               <img
                 src={ASSETS.logo}
                 alt="Fundación Mujeres sin Techo de Cristal"
+                width="400"
+                height="400"
                 className="w-full h-auto block"
               />
               {/* Overlay sutil */}

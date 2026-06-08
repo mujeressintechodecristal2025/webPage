@@ -95,16 +95,16 @@ export default function TestimoniosSection() {
           </div>
 
           {/* Dots navegación */}
-          <div className="flex justify-center gap-2 mt-8">
+          <div className="flex justify-center gap-3 mt-8">
             {TESTIMONIOS.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActive(i)}
                 className={cn(
-                  'w-2.5 h-2.5 rounded-full transition-all duration-300',
+                  'h-3 rounded-full transition-all duration-300',
                   i === active
-                    ? 'bg-magenta w-8'
-                    : 'bg-charcoal/15 hover:bg-charcoal/30'
+                    ? 'bg-magenta w-10'
+                    : 'bg-charcoal/15 hover:bg-charcoal/30 w-3'
                 )}
                 aria-label={`Ver testimonio ${i + 1}`}
               />

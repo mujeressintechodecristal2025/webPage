@@ -75,8 +75,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 flex-shrink-0" aria-label="Inicio">
           <img
-            src={ASSETS.logo}
+            src={ASSETS.logoSm}
             alt="Fundación Mujeres sin Techo de Cristal"
+            width="40"
+            height="40"
             className="h-10 w-10 object-cover rounded-full ring-2 ring-magenta/20"
           />
           <span className="hidden sm:block font-serif text-[15px] text-charcoal font-light leading-tight">
