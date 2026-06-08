@@ -157,6 +157,7 @@ export default function HeroSection() {
                 alt="Fundación Mujeres sin Techo de Cristal"
                 width="550"
                 height="307"
+                loading="lazy"
                 className="w-full h-auto block"
               />
               {/* Overlay sutil */}

@@ -79,6 +79,7 @@ export default function Navbar() {
             alt="Fundación Mujeres sin Techo de Cristal"
             width="40"
             height="40"
+            fetchPriority="high"
             className="h-10 w-10 object-cover rounded-full ring-2 ring-magenta/20"
           />
           <span className="hidden sm:block font-serif text-[15px] text-charcoal font-light leading-tight">
