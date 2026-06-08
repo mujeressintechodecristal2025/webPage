@@ -75,12 +75,12 @@ export default function Footer() {
               </div>
             </div>
 
-            <p className="text-[13px] text-white/40 leading-relaxed font-light max-w-xs mb-3">
+            <p className="text-[13px] text-white/60 leading-relaxed font-light max-w-xs mb-3">
               Eliminando los techos de cristal que limitan el desarrollo y la
               dignidad de las mujeres en Colombia desde 2021.
             </p>
 
-            <p className="text-[11px] text-white/30 font-light mb-8">
+            <p className="text-[11px] text-white/55 font-light mb-8">
               Representante legal: <span className="text-white/50">Mónica Jhoana Ospina</span>
             </p>
 
@@ -93,7 +93,7 @@ export default function Footer() {
                   aria-label={`Visitar ${s.label}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/40 hover:text-white hover:border-magenta/50 hover:bg-magenta/10 transition-all duration-200 rounded-sm"
+                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/60 hover:text-white hover:border-magenta/50 hover:bg-magenta/10 transition-all duration-200 rounded-sm"
                 >
                   {s.icon}
                 </a>
@@ -111,7 +111,7 @@ export default function Footer() {
                 <li key={item}>
                   <button
                     onClick={() => scrollTo(item)}
-                    className="text-[13px] text-white/45 hover:text-white transition-colors font-light tracking-wide text-left"
+                    className="text-[13px] text-white/65 hover:text-white transition-colors font-light tracking-wide text-left"
                   >
                     {item}
                   </button>
@@ -129,7 +129,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/politica-de-privacidad"
-                  className="text-[13px] text-white/45 hover:text-white transition-colors font-light tracking-wide"
+                  className="text-[13px] text-white/65 hover:text-white transition-colors font-light tracking-wide"
                 >
                   Política de Privacidad
                 </Link>
@@ -137,7 +137,7 @@ export default function Footer() {
               <li>
                 <Link
                   to="/transparencia"
-                  className="text-[13px] text-white/45 hover:text-white transition-colors font-light tracking-wide"
+                  className="text-[13px] text-white/65 hover:text-white transition-colors font-light tracking-wide"
                 >
                   Transparencia RTE-DIAN
                 </Link>
@@ -147,7 +147,7 @@ export default function Footer() {
             {/* Badge RTE */}
             <div className="mt-8 inline-flex items-center gap-2 px-3 py-2 border border-magenta/20 bg-magenta/5">
               <div className="w-1.5 h-1.5 rounded-full bg-magenta/60" aria-hidden="true" />
-              <span className="text-[10px] tracking-[1.5px] text-magenta/60 uppercase font-light">
+              <span className="text-[10px] tracking-[1.5px] text-magenta uppercase font-medium">
                 Régimen Tributario Especial
               </span>
             </div>
@@ -156,10 +156,10 @@ export default function Footer() {
 
         {/* Separador */}
         <div className="border-t border-white/8 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-[11px] text-white/25 tracking-wide text-center sm:text-left">
+          <p className="text-[11px] text-white/55 tracking-wide text-center sm:text-left">
             © {year} Fundación Mujeres sin Techo de Cristal · NIT 901907058-9 · Todos los derechos reservados.
           </p>
-          <p className="text-[11px] text-white/20 tracking-wide">
+          <p className="text-[11px] text-white/50 tracking-wide">
             Hecho con ♥ en Colombia
           </p>
         </div>

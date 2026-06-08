@@ -142,7 +142,7 @@ export default function ProyectosSection() {
           </div>
           <button
             onClick={() => document.querySelector('#contacto')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex-shrink-0 bg-magenta text-white px-8 py-4 text-[11px] tracking-[2px] uppercase font-medium hover:bg-magenta-dark active:scale-95 transition-all duration-200 whitespace-nowrap"
+            className="flex-shrink-0 bg-magenta-dark text-white px-8 py-4 text-[11px] tracking-[2px] uppercase font-medium hover:bg-magenta active:scale-95 transition-all duration-200 whitespace-nowrap"
           >
             Quiero donar
           </button>
