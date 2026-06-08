@@ -95,8 +95,8 @@
     font-size: 10px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: #d834d4;
-    font-weight: 400;
+    color: #86198f;
+    font-weight: 600;
     margin-bottom: 16px;
   }
 
@@ -105,7 +105,7 @@
     display: block;
     width: 32px;
     height: 1px;
-    background: linear-gradient(90deg, #d834d4, #e96ee6);
+    background: linear-gradient(90deg, #86198f, #c026d3);
     flex-shrink: 0;
   }
 

@@ -106,7 +106,7 @@ export default function NosotrosSection() {
                     {v.icon}
                   </div>
                   <div>
-                    <p className="text-[11px] tracking-[2px] uppercase text-magenta font-semibold mb-1.5">
+                    <p className="text-[11px] tracking-[2px] uppercase text-magenta-dark font-semibold mb-1.5">
                       {v.title}
                     </p>
                     <p className="text-[13px] text-soft-grey leading-relaxed font-light">

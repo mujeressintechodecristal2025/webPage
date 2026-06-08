@@ -83,7 +83,7 @@ export default function Navbar() {
           />
           <span className="hidden sm:block font-serif text-[15px] text-charcoal font-light leading-tight">
             Mujeres sin<br />
-            <strong className="font-semibold text-magenta text-[13px] tracking-wide">Techo de Cristal</strong>
+            <strong className="font-semibold text-magenta-dark text-[13px] tracking-wide">Techo de Cristal</strong>
           </span>
         </Link>
 

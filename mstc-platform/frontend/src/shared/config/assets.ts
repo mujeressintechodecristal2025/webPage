@@ -10,6 +10,9 @@ export const ASSETS = {
   /** Logo principal — WebP optimizado, 400×400 px */
   logo: `${base}images/logo.webp`,
 
+  /** Logo original alta resolución — para sección Hero */
+  logoHD: `${base}images/logo.png`,
+
   /** Logo pequeño para navbar — WebP, 80×80 px */
   logoSm: `${base}images/logo-sm.webp`,
 

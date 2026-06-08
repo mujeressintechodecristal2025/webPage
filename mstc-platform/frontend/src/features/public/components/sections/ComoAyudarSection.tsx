@@ -112,7 +112,7 @@ export default function ComoAyudarSection() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[11px] tracking-[1.5px] uppercase font-semibold text-magenta hover:text-magenta-dark transition-colors flex items-center gap-1.5"
+                  className="text-[11px] tracking-[1.5px] uppercase font-semibold text-magenta-dark hover:text-magenta transition-colors flex items-center gap-1.5"
                 >
                   {item.cta}
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -122,7 +122,7 @@ export default function ComoAyudarSection() {
               ) : (
                 <button
                   onClick={() => scrollTo(item.href)}
-                  className="text-[11px] tracking-[1.5px] uppercase font-semibold text-magenta hover:text-magenta-dark transition-colors flex items-center gap-1.5 text-left"
+                  className="text-[11px] tracking-[1.5px] uppercase font-semibold text-magenta-dark hover:text-magenta transition-colors flex items-center gap-1.5 text-left"
                 >
                   {item.cta}
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -166,7 +166,7 @@ export default function ComoAyudarSection() {
           </div>
           <a
             href="/transparencia"
-            className="flex-shrink-0 text-[11px] tracking-[1.5px] uppercase font-semibold text-magenta border border-magenta/25 px-5 py-3 rounded-full hover:bg-magenta hover:text-white transition-all duration-200"
+            className="flex-shrink-0 text-[11px] tracking-[1.5px] uppercase font-semibold text-magenta-dark border border-magenta-dark/30 px-5 py-3 rounded-full hover:bg-magenta-dark hover:text-white transition-all duration-200"
           >
             Ver informes
           </a>

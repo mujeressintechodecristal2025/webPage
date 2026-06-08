@@ -347,7 +347,7 @@ export default function ContactoSection() {
                         Acepto la{' '}
                         <a
                           href="/politica-de-privacidad"
-                          className="text-magenta hover:underline"
+                          className="text-magenta-dark underline hover:text-magenta"
                           target="_blank"
                           rel="noopener noreferrer"
                         >

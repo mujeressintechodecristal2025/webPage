@@ -112,7 +112,7 @@ export default function ProyectosSection() {
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="text-[10px] tracking-[1px] uppercase px-2.5 py-1 border border-magenta/20 text-magenta/80 font-light"
+                      className="text-[10px] tracking-[1px] uppercase px-2.5 py-1 border border-magenta-dark/30 text-magenta-dark font-medium"
                     >
                       {tag}
                     </span>

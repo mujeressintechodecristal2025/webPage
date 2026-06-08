@@ -153,7 +153,7 @@ export default function HeroSection() {
             {/* Imagen principal */}
             <div className="relative overflow-hidden rounded-sm bg-charcoal/50">
               <img
-                src={ASSETS.logo}
+                src={ASSETS.logoHD}
                 alt="Fundación Mujeres sin Techo de Cristal"
                 width="400"
                 height="400"
