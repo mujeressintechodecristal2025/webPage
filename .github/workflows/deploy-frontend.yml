@@ -53,6 +53,15 @@ jobs:
         working-directory: mstc-platform/frontend
         run: cp dist/index.html dist/404.html
 
+      - name: Create redirect script for SPA
+        working-directory: mstc-platform/frontend
+        run: |
+          # Create a simple redirect for all routes
+          for route in transparencia politica-de-privacidad; do
+            mkdir -p "dist/$route"
+            cp dist/index.html "dist/$route/index.html"
+          done
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
