@@ -137,34 +137,34 @@ export default function HeroSection() {
 
         {/* ── Columna derecha — Visual ── */}
         <div className="hidden lg:flex items-center justify-center relative z-10 animate-fade-in-right">
-          <div className="relative w-full max-w-md">
+          <div className="relative w-full max-w-lg">
 
             {/* Marco decorativo exterior */}
             <div
-              className="absolute -top-6 -right-6 w-full h-full border border-magenta/20 rounded-sm"
+              className="absolute -top-8 -right-8 w-full h-full border border-magenta/20 rounded-lg"
               aria-hidden="true"
             />
             {/* Marco decorativo interior */}
             <div
-              className="absolute -top-3 -right-3 w-full h-full border border-gold/10 rounded-sm"
+              className="absolute -top-4 -right-4 w-full h-full border border-gold/10 rounded-lg"
               aria-hidden="true"
             />
 
             {/* Imagen principal */}
-            <div className="relative overflow-hidden rounded-sm bg-charcoal/50">
+            <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-charcoal/80 to-charcoal/40 p-6">
               <img
                 src={ASSETS.logoHD}
                 alt="Fundación Mujeres sin Techo de Cristal"
                 width="550"
                 height="307"
                 loading="lazy"
-                className="w-full h-auto block"
+                className="w-full h-auto block rounded-md"
               />
               {/* Overlay sutil */}
               <div
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0 pointer-events-none rounded-lg"
                 style={{
-                  background: 'linear-gradient(to top, rgba(15,23,42,0.4) 0%, transparent 50%)',
+                  background: 'linear-gradient(to top, rgba(15,23,42,0.3) 0%, transparent 40%)',
                 }}
                 aria-hidden="true"
               />
