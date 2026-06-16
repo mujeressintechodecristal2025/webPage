@@ -44,6 +44,5 @@ export const ASSETS = {
     `${base}images/grupales/grupal2.jpg`,
     `${base}images/grupales/grupal3.jpg`,
     `${base}images/grupales/grupal4.jpg`,
-    `${base}images/grupales/grupal5.jpg`,
   ],
 } as const
