@@ -64,8 +64,8 @@ desktop.ini
 # ===========================
 *.docx
 *.pdf
-*.jpeg
-*.jpg
+/**.docx
+/**.pdf
 ../*.md
 ../read-docx.js
 ../DATOS_REQUERIDOS_SITIO_WEB*.md
