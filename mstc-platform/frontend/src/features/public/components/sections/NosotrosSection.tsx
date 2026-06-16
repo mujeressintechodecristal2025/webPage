@@ -53,7 +53,7 @@ export default function NosotrosSection() {
       {/* Línea superior degradada */}
       <div
         className="absolute top-0 left-0 right-0 h-[3px]"
-        style={{ background: 'linear-gradient(90deg, #d834d4 0%, #e96ee6 50%, transparent 100%)' }}
+        style={{ background: 'linear-gradient(90deg, #c026d3 0%, #e879f9 50%, transparent 100%)' }}
         aria-hidden="true"
       />
 
@@ -149,9 +149,9 @@ export default function NosotrosSection() {
             {/* Visión */}
             <div
               className="p-8 lg:p-10"
-              style={{ background: 'linear-gradient(135deg, #d834d4 0%, #a020a0 100%)' }}
+              style={{ background: 'linear-gradient(135deg, #c026d3 0%, #86198f 100%)' }}
             >
-              <p className="text-[10px] tracking-[3px] text-white/60 uppercase mb-4 font-medium">
+              <p className="text-[10px] tracking-[3px] text-white/80 uppercase mb-4 font-medium">
                 Nuestra visión
               </p>
               <p
@@ -173,7 +173,7 @@ export default function NosotrosSection() {
             >
               <div
                 className="w-12 h-12 flex-shrink-0 flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #d834d4, #a020a0)' }}
+                style={{ background: 'linear-gradient(135deg, #c026d3, #86198f)' }}
                 aria-hidden="true"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="white">

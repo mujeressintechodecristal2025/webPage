@@ -72,20 +72,26 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-10 h-full flex items-center justify-between">
 
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 flex-shrink-0" aria-label="Inicio">
+        {/* Logo + nombre */}
+        <Link to="/" className="flex items-center gap-4 flex-shrink-0" aria-label="Inicio">
           <img
             src={ASSETS.logoSm}
             alt="Fundación Mujeres sin Techo de Cristal"
             width="40"
             height="40"
-            fetchPriority="high"
-            className="h-10 w-10 object-cover rounded-full ring-2 ring-magenta/20"
+            className="h-11 w-11 object-cover rounded-full ring-2 ring-magenta/30 shadow-md"
           />
-          <span className="hidden sm:block font-serif text-[15px] text-charcoal font-light leading-tight">
-            Mujeres sin<br />
-            <strong className="font-semibold text-magenta-dark text-[13px] tracking-wide">Techo de Cristal</strong>
-          </span>
+          <div className="hidden sm:flex flex-col">
+            <span className="font-serif text-[11px] tracking-[3px] uppercase text-charcoal/60 font-medium leading-none mb-1">
+              Fundación
+            </span>
+            <span className="font-serif text-[19px] font-bold leading-none text-charcoal">
+              Mujeres sin{' '}
+              <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #c026d3, #86198f)' }}>
+                Techo de Cristal
+              </span>
+            </span>
+          </div>
         </Link>
 
         {/* Links desktop */}
@@ -108,8 +114,8 @@ export default function Navbar() {
 
         {/* CTA desktop */}
         <button
-          onClick={() => handleNavClick('#contacto')}
-          className="hidden md:inline-flex items-center gap-2 bg-magenta text-white px-6 py-2.5 text-[10px] tracking-[2px] uppercase font-semibold hover:bg-magenta-dark active:scale-95 transition-all duration-200 rounded shadow-sm"
+          onClick={() => handleNavClick('#donar')}
+          className="hidden md:inline-flex items-center gap-2 bg-magenta text-white px-6 py-2.5 text-[10px] tracking-[2px] uppercase font-semibold hover:bg-magenta-dark hover:shadow-[0_4px_20px_rgba(192,38,211,0.35)] active:scale-95 transition-all duration-200 rounded shadow-sm"
           aria-label="Ir a sección de donaciones"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -151,8 +157,8 @@ export default function Navbar() {
             ))}
             <li className="mt-3">
               <button
-                onClick={() => handleNavClick('#contacto')}
-                className="w-full bg-magenta text-white py-3.5 text-[11px] tracking-[2px] uppercase font-medium hover:bg-magenta-dark transition-colors"
+                onClick={() => handleNavClick('#donar')}
+                className="w-full bg-magenta text-white py-3.5 text-[11px] tracking-[2px] uppercase font-semibold hover:bg-magenta-dark transition-colors"
               >
                 Quiero donar
               </button>

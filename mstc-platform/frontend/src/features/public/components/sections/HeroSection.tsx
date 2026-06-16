@@ -65,9 +65,9 @@ export default function HeroSection() {
         <div className="relative z-10 animate-fade-in-up">
 
           {/* Badge institucional */}
-          <div className="inline-flex items-center gap-2.5 border border-magenta/30 bg-magenta/5 px-4 py-2 mb-8 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-magenta-light animate-pulse" aria-hidden="true" />
-            <span className="text-[10px] tracking-[2.5px] uppercase text-magenta-light font-light">
+          <div className="inline-flex items-center gap-2.5 border border-white/15 bg-white/5 px-4 py-2 mb-8 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-white/60 animate-pulse" aria-hidden="true" />
+            <span className="text-[10px] tracking-[2.5px] uppercase text-white/70 font-light">
               Fundación sin ánimo de lucro · Colombia
             </span>
           </div>
@@ -87,7 +87,7 @@ export default function HeroSection() {
 
           {/* Descripción */}
           <p
-            className="text-white/60 font-light max-w-lg mb-10 leading-relaxed"
+            className="text-white/70 font-light max-w-lg mb-10 leading-relaxed"
             style={{ fontSize: 'clamp(14px, 1.5vw, 16px)' }}
           >
             Impulsamos el crecimiento integral y el liderazgo de mujeres en
@@ -101,7 +101,7 @@ export default function HeroSection() {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => scrollTo('#contacto')}
+              onClick={() => scrollTo('#donar')}
               aria-label="Ir a sección de donaciones"
             >
               Quiero donar
@@ -118,16 +118,16 @@ export default function HeroSection() {
 
           {/* Estadísticas */}
           <div
-            className="flex flex-wrap gap-8 pt-8"
+            className="grid grid-cols-3 gap-6 pt-8"
             style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}
           >
             {STATS.map((stat, i) => (
               <div key={stat.label} style={{ animationDelay: `${i * 0.15}s` }} className="animate-count">
-                <p className="font-serif font-semibold text-magenta-light leading-none mb-1"
+                <p className="font-serif font-semibold text-magenta-light leading-none mb-2"
                    style={{ fontSize: 'clamp(28px, 3vw, 40px)' }}>
                   {stat.num}
                 </p>
-                <p className="text-[10px] tracking-[2px] text-white/40 uppercase">
+                <p className="text-[10px] tracking-[2px] text-white/50 uppercase">
                   {stat.label}
                 </p>
               </div>
@@ -146,25 +146,24 @@ export default function HeroSection() {
             />
             {/* Marco decorativo interior */}
             <div
-              className="absolute -top-4 -right-4 w-full h-full border border-gold/10 rounded-lg"
+              className="absolute -top-4 -right-4 w-full h-full border border-magenta/10 rounded-lg"
               aria-hidden="true"
             />
 
             {/* Imagen principal */}
-            <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-charcoal/80 to-charcoal/40 p-6">
+            <div className="relative overflow-hidden rounded-lg bg-white/95 p-6">
               <img
                 src={ASSETS.logoHD}
                 alt="Fundación Mujeres sin Techo de Cristal"
                 width="550"
                 height="307"
-                loading="lazy"
                 className="w-full h-auto block rounded-md"
               />
               {/* Overlay sutil */}
               <div
                 className="absolute inset-0 pointer-events-none rounded-lg"
                 style={{
-                  background: 'linear-gradient(to top, rgba(15,23,42,0.3) 0%, transparent 40%)',
+                  background: 'linear-gradient(to top, rgba(255,255,255,0.1) 0%, transparent 40%)',
                 }}
                 aria-hidden="true"
               />
@@ -174,13 +173,13 @@ export default function HeroSection() {
             <div
               className="absolute -bottom-6 -left-8 px-5 py-4 min-w-[160px] rounded-sm"
               style={{
-                background: 'rgba(255,255,255,0.07)',
+                background: 'rgba(26,14,31,0.85)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.12)',
+                border: '1px solid rgba(192,38,211,0.25)',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
               }}
             >
-              <p className="text-[9px] tracking-[2px] text-white/40 uppercase mb-1">
+              <p className="text-[9px] tracking-[2px] text-white/50 uppercase mb-1">
                 Desde
               </p>
               <p className="font-serif text-[20px] text-white font-semibold leading-none">
@@ -193,12 +192,12 @@ export default function HeroSection() {
             <div
               className="absolute -top-6 -left-6 px-4 py-3 rounded-sm"
               style={{
-                background: 'rgba(192,38,211,0.15)',
+                background: 'rgba(26,14,31,0.85)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(192,38,211,0.25)',
               }}
             >
-              <p className="text-[9px] tracking-[2px] text-white/40 uppercase mb-1">
+              <p className="text-[9px] tracking-[2px] text-white/50 uppercase mb-1">
                 Activos
               </p>
               <p className="font-serif text-[18px] text-white font-semibold leading-none">

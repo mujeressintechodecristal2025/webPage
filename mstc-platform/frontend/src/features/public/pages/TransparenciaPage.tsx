@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom'
+import SEO from '@/shared/components/SEO'
 
 export default function TransparenciaPage() {
   return (
     <div className="pt-[72px] min-h-screen bg-cream">
+      <SEO
+        title="Transparencia y Rendición de Cuentas"
+        description="Documentos legales, estados financieros y actas de la Fundación Mujeres sin Techo de Cristal. NIT 901907058-9. Consulta ciudadana."
+        path="/transparencia"
+      />
       <div className="max-w-4xl mx-auto px-6 lg:px-10 py-16 lg:py-24">
 
         {/* Header */}
@@ -23,10 +29,10 @@ export default function TransparenciaPage() {
           </h1>
 
           <p className="text-soft-grey font-light text-[15px] leading-relaxed max-w-2xl">
-            En cumplimiento del Artículo 364-5 del Estatuto Tributario y como entidad
-            perteneciente al Régimen Tributario Especial (RTE), la Fundación Mujeres
-            sin Techo de Cristal pone a disposición del público los siguientes documentos
-            para consulta ciudadana.
+            Como entidad sin ánimo de lucro en proceso de calificación ante el Régimen
+            Tributario Especial (RTE), la Fundación Mujeres sin Techo de Cristal pone a
+            disposición del público los siguientes documentos para consulta ciudadana,
+            en cumplimiento del principio de transparencia.
           </p>
         </div>
 

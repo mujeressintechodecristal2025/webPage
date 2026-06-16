@@ -11,7 +11,7 @@ export default function StickyDonateButton() {
   }, [])
 
   const scrollToContact = () => {
-    const el = document.querySelector('#contacto')
+    const el = document.querySelector('#donar')
     if (el) {
       const navHeight = 72
       const top = el.getBoundingClientRect().top + window.scrollY - navHeight

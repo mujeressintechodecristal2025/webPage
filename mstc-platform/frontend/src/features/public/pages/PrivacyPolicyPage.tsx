@@ -1,6 +1,13 @@
+import SEO from '@/shared/components/SEO'
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-cream pt-[72px]">
+      <SEO
+        title="Política de Privacidad"
+        description="Política de tratamiento de datos personales de la Fundación Mujeres sin Techo de Cristal, conforme a la Ley 1581 de 2012."
+        path="/politica-de-privacidad"
+      />
       <div className="max-w-3xl mx-auto px-6 py-20">
         <p className="text-[9px] tracking-[3px] uppercase text-magenta mb-4">Legal</p>
         <h1 className="font-serif text-5xl font-light text-charcoal mb-4">

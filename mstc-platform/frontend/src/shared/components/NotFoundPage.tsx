@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 
 export default function NotFoundPage() {
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center px-6">
+      <Helmet>
+        <title>Página no encontrada | Fundación Mujeres sin Techo de Cristal</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="text-center">
         <p className="text-xs tracking-widest text-magenta uppercase mb-4">Error 404</p>
         <h1 className="font-serif text-6xl font-light text-charcoal mb-6">

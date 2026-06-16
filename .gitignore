@@ -1,0 +1,14 @@
+# Documentos del cliente (no son parte del código)
+_documentos_cliente/
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+
+# Kiro
+.kiro/

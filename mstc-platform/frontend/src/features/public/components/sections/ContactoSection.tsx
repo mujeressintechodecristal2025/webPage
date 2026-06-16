@@ -2,11 +2,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
-import Button from '@/shared/components/Button'
 import { cn } from '@/shared/utils/cn'
 
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '573188307155'
-const FORM_ENDPOINT   = import.meta.env.VITE_FORM_ENDPOINT   || 'https://formspree.io/f/YOUR_FORM_ID'
+const FUNDACION_EMAIL = 'mujeressintechodecristal2025@gmail.com'
 
 const contactSchema = z.object({
   name:           z.string().min(2, 'Ingresa al menos 2 caracteres'),
@@ -78,30 +77,42 @@ const SOCIAL = [
 
 export default function ContactoSection() {
   const [submitted, setSubmitted] = useState(false)
-  const [serverError, setServerError] = useState<string | null>(null)
 
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
+    getValues,
+    trigger,
+    formState: { errors },
   } = useForm<ContactFormData>({ resolver: zodResolver(contactSchema) })
 
-  const onSubmit = async (data: ContactFormData) => {
-    setServerError(null)
-    try {
-      const res = await fetch(FORM_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(data),
-      })
-      if (!res.ok) throw new Error()
-      setSubmitted(true)
-      reset()
-    } catch {
-      setServerError('No se pudo enviar el mensaje. Intenta de nuevo o escríbenos por WhatsApp.')
-    }
+  const buildMessage = (data: ContactFormData) => {
+    return `Hola, soy ${data.name}.\n\nAsunto: ${data.subject}\n\nMensaje:\n${data.message}\n\nMi correo: ${data.email}`
   }
+
+  const sendByWhatsApp = async () => {
+    const valid = await trigger()
+    if (!valid) return
+    const data = getValues()
+    const text = buildMessage(data)
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`
+    window.open(url, '_blank')
+    setSubmitted(true)
+  }
+
+  const sendByEmail = async () => {
+    const valid = await trigger()
+    if (!valid) return
+    const data = getValues()
+    const subject = encodeURIComponent(data.subject)
+    const body = encodeURIComponent(`Hola, soy ${data.name}.\n\n${data.message}\n\nMi correo de contacto: ${data.email}`)
+    const url = `https://mail.google.com/mail/?view=cm&to=${FUNDACION_EMAIL}&su=${subject}&body=${body}`
+    window.open(url, '_blank')
+    setSubmitted(true)
+  }
+
+  // Prevent default form submit
+  const onSubmit = () => {}
 
   const fieldClass = (hasError: boolean) =>
     cn(
@@ -184,39 +195,30 @@ export default function ContactoSection() {
               </div>
             </div>
 
-            {/* WhatsApp CTA */}
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola, me interesa conocer más sobre la Fundación MSTC.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-4 p-5 border-l-4 bg-cream hover:bg-green-50/60 transition-colors duration-200 group"
-              style={{ borderLeftColor: '#25D366' }}
-              aria-label="Contactar por WhatsApp"
-            >
-              <div
-                className="w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-full group-hover:scale-105 transition-transform"
-                style={{ background: '#25D366' }}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
+            {/* Nequi donación */}
+            <div id="donar" className="mb-6 p-5 border-l-4 bg-cream" style={{ borderLeftColor: '#E6007A' }}>
+              <div className="flex items-center gap-3 mb-2">
+                <div
+                  className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full"
+                  style={{ background: '#E6007A' }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-[10px] tracking-[2px] uppercase text-soft-grey font-medium">
+                    Dona por Nequi
+                  </p>
+                  <p className="font-serif text-[20px] text-charcoal font-semibold leading-none mt-1">
+                    318 830 7155
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-[10px] tracking-[2px] uppercase text-soft-grey mb-0.5">
-                  Atención inmediata
-                </p>
-                <p className="font-serif text-[18px] text-charcoal font-normal group-hover:text-green-700 transition-colors">
-                  WhatsApp directo
-                </p>
-              </div>
-              <svg
-                className="ml-auto text-soft-grey/40 group-hover:text-green-500 group-hover:translate-x-1 transition-all"
-                width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                aria-hidden="true"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
+              <p className="text-[12px] text-soft-grey font-light ml-[52px]">
+                A nombre de la Fundación Mujeres sin Techo de Cristal
+              </p>
+            </div>
           </div>
 
           {/* ── Columna derecha: formulario ── */}
@@ -226,17 +228,17 @@ export default function ContactoSection() {
               <div className="flex flex-col items-center text-center py-12">
                 <div
                   className="w-16 h-16 flex items-center justify-center mb-6 rounded-full"
-                  style={{ background: 'linear-gradient(135deg, #d834d4, #a020a0)' }}
+                  style={{ background: 'linear-gradient(135deg, #c026d3, #86198f)' }}
                 >
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <h3 className="font-serif text-[26px] text-charcoal font-light mb-3">
-                  ¡Mensaje enviado!
+                  ¡Mensaje listo!
                 </h3>
                 <p className="text-soft-grey text-[14px] leading-relaxed max-w-xs mb-8">
-                  Gracias por contactarnos. Te responderemos en menos de 24 horas.
+                  Gracias por contactarnos. Te responderemos lo antes posible.
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
@@ -252,7 +254,7 @@ export default function ContactoSection() {
                     Envíanos un mensaje
                   </h3>
                   <p className="text-[13px] text-soft-grey">
-                    Responderemos en menos de 24 horas
+                    Llena los campos y elige cómo enviarlo
                   </p>
                 </div>
 
@@ -363,27 +365,31 @@ export default function ContactoSection() {
                     )}
                   </div>
 
-                  {/* Error del servidor */}
-                  {serverError && (
-                    <div
-                      role="alert"
-                      className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-sm text-[12px] text-red-700"
+                  {/* Botones de envío */}
+                  <div className="space-y-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={sendByWhatsApp}
+                      className="w-full flex items-center justify-center gap-3 py-4 rounded-sm text-white font-semibold text-[12px] tracking-[1.5px] uppercase hover:opacity-90 active:scale-[0.98] transition-all duration-200"
+                      style={{ background: '#25D366' }}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0 mt-0.5" aria-hidden="true">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                       </svg>
-                      {serverError}
-                    </div>
-                  )}
+                      Enviar por WhatsApp
+                    </button>
 
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="w-full justify-center py-4 text-[11px] tracking-[2px]"
-                    loading={isSubmitting}
-                  >
-                    Enviar mensaje
-                  </Button>
+                    <button
+                      type="button"
+                      onClick={sendByEmail}
+                      className="w-full flex items-center justify-center gap-3 py-4 rounded-sm border border-charcoal/15 text-charcoal font-medium text-[12px] tracking-[1.5px] uppercase hover:border-magenta/40 hover:text-magenta active:scale-[0.98] transition-all duration-200"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Enviar por correo
+                    </button>
+                  </div>
                 </form>
               </>
             )}

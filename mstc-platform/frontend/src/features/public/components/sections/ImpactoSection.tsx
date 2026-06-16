@@ -91,12 +91,12 @@ function StatCard({ stat, active }: { stat: typeof STATS[0]; active: boolean }) 
       </p>
 
       {/* Label */}
-      <p className="text-[11px] tracking-[2.5px] text-white/60 uppercase mb-2 font-medium">
+      <p className="text-[11px] tracking-[2.5px] text-white/70 uppercase mb-2 font-medium">
         {stat.label}
       </p>
 
       {/* Descripción */}
-      <p className="text-[12px] text-white/30 font-light leading-relaxed max-w-[160px]">
+      <p className="text-white/40 font-light leading-relaxed max-w-[160px]">
         {stat.description}
       </p>
     </div>
@@ -158,7 +158,7 @@ export default function ImpactoSection() {
         </div>
 
         {/* Nota al pie */}
-        <p className="text-center text-[11px] text-white/25 mt-8 tracking-wide">
+        <p className="text-center text-[11px] text-white/40 mt-8 tracking-wide">
           Datos acumulados desde 2021 · Actualizado 2026
         </p>
       </div>

@@ -1,4 +1,5 @@
-// Íconos SVG en lugar de emojis — más profesional y consistente
+import { Link } from 'react-router-dom'
+
 const IconFormacion = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -26,6 +27,7 @@ const PROJECTS = [
     tags: ['Modistería', 'Diseño', 'Emprendimiento'],
     Icon: IconFormacion,
     accentColor: '#d834d4',
+    galleryTab: 'talleres',
   },
   {
     id: 2,
@@ -35,6 +37,7 @@ const PROJECTS = [
     tags: ['Salud mental', 'Psicosocial', 'Bienestar'],
     Icon: IconProteccion,
     accentColor: '#a020a0',
+    galleryTab: 'capacitaciones',
   },
   {
     id: 3,
@@ -44,6 +47,7 @@ const PROJECTS = [
     tags: ['Emprendimiento', 'Estrategia', 'Igualdad'],
     Icon: IconEmprendimiento,
     accentColor: '#dd6741',
+    galleryTab: 'capacitaciones',
   },
 ]
 
@@ -108,7 +112,7 @@ export default function ProyectosSection() {
                 <p className="text-[13px] text-soft-grey leading-relaxed font-light mb-5 flex-1">
                   {project.description}
                 </p>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 mb-5">
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
@@ -118,12 +122,27 @@ export default function ProyectosSection() {
                     </span>
                   ))}
                 </div>
+
+                {/* Link a galería */}
+                <Link
+                  to={`/galeria?tab=${project.galleryTab}`}
+                  className="inline-flex items-center gap-2 text-[11px] tracking-[1.5px] uppercase font-semibold text-magenta-dark hover:text-magenta transition-colors group/link"
+                >
+                  Ver galería
+                  <svg
+                    width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                    className="group-hover/link:translate-x-1 transition-transform"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
             </article>
           ))}
         </div>
 
-        {/* Banner CTA — reemplaza el proyecto "Plataforma Digital" */}
+        {/* Banner CTA */}
         <div
           className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 items-center p-8 lg:p-10"
           style={{ background: 'linear-gradient(135deg, #1a0e1f 0%, #2d1535 100%)' }}
@@ -141,7 +160,7 @@ export default function ProyectosSection() {
             </p>
           </div>
           <button
-            onClick={() => document.querySelector('#contacto')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => document.querySelector('#donar')?.scrollIntoView({ behavior: 'smooth' })}
             className="flex-shrink-0 bg-magenta-dark text-white px-8 py-4 text-[11px] tracking-[2px] uppercase font-medium hover:bg-magenta active:scale-95 transition-all duration-200 whitespace-nowrap"
           >
             Quiero donar

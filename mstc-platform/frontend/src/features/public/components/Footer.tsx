@@ -47,7 +47,7 @@ export default function Footer() {
       {/* Línea superior */}
       <div
         className="h-[3px] w-full"
-        style={{ background: 'linear-gradient(90deg, #d834d4 0%, #e96ee6 50%, #d834d4 100%)' }}
+        style={{ background: 'linear-gradient(90deg, #c026d3 0%, #e879f9 50%, #c026d3 100%)' }}
         aria-hidden="true"
       />
 
@@ -59,29 +59,35 @@ export default function Footer() {
           {/* Columna marca */}
           <div>
             {/* Logo + nombre */}
-            <div className="flex items-center gap-3 mb-5">
+            <div className="flex items-center gap-4 mb-6">
               <img
                 src={ASSETS.logo}
                 alt="Fundación MSTC"
-                className="h-12 w-12 object-cover rounded-full ring-2 ring-white/10"
+                className="h-14 w-14 object-cover rounded-full ring-2 ring-magenta/30 shadow-lg"
               />
               <div>
-                <p className="font-serif text-white text-[15px] font-light leading-tight">
-                  Fundación Mujeres
-                </p>
-                <p className="font-serif text-magenta-light text-[13px] font-semibold tracking-wide">
-                  sin Techo de Cristal
+                <span className="text-[9px] tracking-[3px] uppercase text-white/40 font-medium leading-none block mb-1">
+                  Fundación
+                </span>
+                <p className="font-serif text-[20px] font-bold leading-tight text-white">
+                  Mujeres sin{' '}
+                  <span
+                    className="text-transparent bg-clip-text"
+                    style={{ backgroundImage: 'linear-gradient(135deg, #e879f9, #c026d3)' }}
+                  >
+                    Techo de Cristal
+                  </span>
                 </p>
               </div>
             </div>
 
-            <p className="text-[13px] text-white/60 leading-relaxed font-light max-w-xs mb-3">
+            <p className="text-[13px] text-white/70 leading-relaxed font-light max-w-xs mb-3">
               Eliminando los techos de cristal que limitan el desarrollo y la
               dignidad de las mujeres en Colombia desde 2021.
             </p>
 
-            <p className="text-[11px] text-white/55 font-light mb-8">
-              Representante legal: <span className="text-white/50">Mónica Jhoana Ospina</span>
+            <p className="text-[11px] text-white/60 font-light mb-8">
+              Representante legal: <span className="text-white/55">Mónica Jhoana Ospina</span>
             </p>
 
             {/* Redes sociales */}
@@ -144,11 +150,11 @@ export default function Footer() {
               </li>
             </ul>
 
-            {/* Badge RTE */}
+            {/* Badge entidad sin ánimo de lucro */}
             <div className="mt-8 inline-flex items-center gap-2 px-3 py-2 border border-magenta/20 bg-magenta/5">
               <div className="w-1.5 h-1.5 rounded-full bg-magenta/60" aria-hidden="true" />
               <span className="text-[10px] tracking-[1.5px] text-magenta uppercase font-medium">
-                Régimen Tributario Especial
+                Entidad sin ánimo de lucro
               </span>
             </div>
           </div>
@@ -156,11 +162,24 @@ export default function Footer() {
 
         {/* Separador */}
         <div className="border-t border-white/8 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p className="text-[11px] text-white/55 tracking-wide text-center sm:text-left">
+          <p className="text-[11px] text-white/60 tracking-wide text-center sm:text-left">
             © {year} Fundación Mujeres sin Techo de Cristal · NIT 901907058-9 · Todos los derechos reservados.
           </p>
-          <p className="text-[11px] text-white/50 tracking-wide">
+          <p className="text-[11px] text-white/55 tracking-wide">
             Hecho con ♥ en Colombia
+          </p>
+        </div>
+
+        {/* Créditos desarrollador */}
+        <div className="mt-4 text-center">
+          <p className="text-[10px] text-white/40 tracking-wide">
+            Desarrollado por{' '}
+            <a
+              href="mailto:ccrc83@gmail.com"
+              className="text-white/50 hover:text-magenta-light transition-colors"
+            >
+              Cristian Camilo Romero Cárdenas
+            </a>
           </p>
         </div>
       </div>

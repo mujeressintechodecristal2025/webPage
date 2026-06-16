@@ -8,7 +8,7 @@ const FORMAS_AYUDA = [
     title: 'Dona',
     description: 'Tu aporte financia directamente los programas de formación y acompañamiento.',
     cta: 'Donar ahora',
-    href: '#contacto',
+    href: '#donar',
     accent: '#c026d3',
   },
   {
@@ -144,12 +144,12 @@ export default function ComoAyudarSection() {
                 <circle
                   cx="50" cy="50" r="42" fill="none"
                   stroke="#c026d3" strokeWidth="8"
-                  strokeDasharray={`${85 * 2.64} ${100 * 2.64}`}
+                  strokeDasharray={`${70 * 2.64} ${100 * 2.64}`}
                   strokeLinecap="round"
                 />
               </svg>
               <span className="absolute inset-0 flex items-center justify-center font-bold text-charcoal text-xl">
-                85%
+                70%
               </span>
             </div>
           </div>
@@ -158,9 +158,9 @@ export default function ComoAyudarSection() {
               Transparencia financiera
             </h3>
             <p className="text-soft-grey text-[14px] leading-relaxed font-light">
-              El <strong className="text-charcoal font-semibold">85% de cada donación</strong> se destina
+              El <strong className="text-charcoal font-semibold">70% de cada donación</strong> se destina
               directamente a los programas de formación, acompañamiento psicosocial y emprendimiento
-              de nuestras beneficiarias. El 15% restante cubre gastos operativos esenciales para
+              de nuestras beneficiarias. El 30% restante cubre gastos operativos esenciales para
               mantener la fundación en funcionamiento.
             </p>
           </div>
