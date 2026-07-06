@@ -7,7 +7,7 @@ interface SEOProps {
   noindex?: boolean
 }
 
-const BASE_URL = 'https://www.fundacionmujeressintechodecristal.org'
+const BASE_URL = 'https://fundacionmujeressintechodecristal.org'
 const SITE_NAME = 'Fundación Mujeres sin Techo de Cristal'
 
 export default function SEO({ title, description, path = '/', noindex = false }: SEOProps) {

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.fundacionmujeressintechodecristal.org/sitemap.xml
+Sitemap: https://fundacionmujeressintechodecristal.org/sitemap.xml

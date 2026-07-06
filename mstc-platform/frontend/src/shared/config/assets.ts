@@ -26,6 +26,7 @@ export const ASSETS = {
     `${base}images/talleres/taller3.jpg`,
     `${base}images/talleres/taller4.jpg`,
     `${base}images/talleres/taller5.jpg`,
+    `${base}images/talleres/taller6.jpg`,
     `${base}images/talleres/taller7.jpg`,
     `${base}images/talleres/taller8.jpg`,
   ],
@@ -36,6 +37,9 @@ export const ASSETS = {
     `${base}images/capacitaciones/capacitacion2.jpg`,
     `${base}images/capacitaciones/capacitacion3.jpg`,
     `${base}images/capacitaciones/capacitacion4.jpg`,
+    `${base}images/capacitaciones/capacitacion5.jpg`,
+    `${base}images/capacitaciones/capacitacion6.jpg`,
+    `${base}images/capacitaciones/capacitacion7.jpg`,
   ],
 
   /** Galería — Fotos grupales y beneficiarias */
@@ -44,5 +48,17 @@ export const ASSETS = {
     `${base}images/grupales/grupal2.jpg`,
     `${base}images/grupales/grupal3.jpg`,
     `${base}images/grupales/grupal4.jpg`,
+    `${base}images/grupales/grupal5.jpg`,
+    `${base}images/grupales/grupal6.jpg`,
   ],
+
+  /** Testimonios — Fotos de beneficiarias */
+  galleryTestimonios: [
+    `${base}images/testimonios/testimonio1.jpeg`,
+    `${base}images/testimonios/testimonio2.jpeg`,
+    `${base}images/testimonios/testimonio3.jpeg`,
+  ],
+
+  /** Representante legal — Mónica Jhoana Ospina */
+  representante: `${base}images/representante/representante.jpeg`,
 } as const

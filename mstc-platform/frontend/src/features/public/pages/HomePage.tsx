@@ -11,8 +11,8 @@ export default function HomePage() {
   return (
     <>
       <SEO
-        title="Fundación Mujeres sin Techo de Cristal | Empoderamiento Femenino en Colombia"
-        description="Fundación sin ánimo de lucro en Dosquebradas, Risaralda. Programas de modistería, capacitación psicosocial y emprendimiento para mujeres en situación de vulnerabilidad."
+        title="Fundación Mujeres sin Techo de Cristal | ONG Colombia"
+        description="ONG en Dosquebradas, Risaralda. Programas de modistería, capacitación psicosocial y emprendimiento para mujeres en vulnerabilidad."
         path="/"
       />
       <HeroSection />

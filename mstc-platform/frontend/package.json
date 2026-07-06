@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && npm run prerender",
+    "build:only": "tsc && vite build",
+    "prerender": "node scripts/prerender.mjs",
     "preview": "vite preview",
     "test": "vitest --run --passWithNoTests",
     "test:watch": "vitest",
@@ -45,6 +47,7 @@
     "jsdom": "^24.1.1",
     "postcss": "^8.4.40",
     "prettier": "^3.3.3",
+    "puppeteer": "^23.0.0",
     "tailwindcss": "^3.4.7",
     "typescript": "^5.5.3",
     "vite": "^5.3.4",

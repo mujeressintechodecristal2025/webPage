@@ -47,7 +47,11 @@ jobs:
           VITE_WHATSAPP_NUMBER: ${{ secrets.VITE_WHATSAPP_NUMBER }}
           VITE_FORM_ENDPOINT:  ${{ secrets.VITE_FORM_ENDPOINT }}
           VITE_APP_ENV:        production
-        run: npm run build
+        run: npm run build:only
+
+      - name: Pre-render pages for SEO
+        working-directory: frontend
+        run: npm run prerender
 
       # Necesario para React Router en GitHub Pages
       - name: Copy index.html as 404.html
