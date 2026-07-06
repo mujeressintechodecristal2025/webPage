@@ -1,3 +1,6 @@
+import { useState, useEffect, useRef } from 'react'
+import { ASSETS } from '@/shared/config/assets'
+
 const VALUES = [
   {
     title: 'Sororidad',
@@ -47,8 +50,67 @@ const VALUES = [
 ]
 
 export default function NosotrosSection() {
+  const [showLightbox, setShowLightbox] = useState(false)
+  const closeBtnRef = useRef<HTMLButtonElement>(null)
+
+  // Escape key handler + focus trap
+  useEffect(() => {
+    if (!showLightbox) return
+
+    // Focus the close button when lightbox opens
+    closeBtnRef.current?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowLightbox(false)
+      }
+      // Trap focus inside lightbox (only one focusable element: close btn)
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        closeBtnRef.current?.focus()
+      }
+    }
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = ''
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [showLightbox])
+
   return (
     <section id="nosotros" className="py-24 lg:py-32 bg-white relative" aria-labelledby="nosotros-title">
+
+      {/* Lightbox — imagen completa representante legal */}
+      {showLightbox && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn"
+          onClick={() => setShowLightbox(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Imagen completa de Mónica Jhoana Ospina"
+        >
+          <button
+            ref={closeBtnRef}
+            onClick={() => setShowLightbox(false)}
+            className="absolute top-6 right-6 text-white/80 hover:text-white transition-colors z-10"
+            aria-label="Cerrar imagen"
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <img
+            src={ASSETS.representante}
+            alt="Mónica Jhoana Ospina — Representante Legal"
+            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
 
       {/* Línea superior degradada */}
       <div
@@ -166,28 +228,49 @@ export default function NosotrosSection() {
               </p>
             </div>
 
-            {/* Dato destacado */}
+            {/* Dato destacado — Representante Legal */}
             <div
-              className="flex items-center gap-5 p-6 border border-charcoal/10"
-              style={{ background: 'linear-gradient(135deg, #fdf7f2, #fff)' }}
+              className="relative p-8 lg:p-10 overflow-hidden border-l-[3px] border-magenta"
+              style={{ background: 'linear-gradient(135deg, #fdf2f8 0%, #fff 100%)' }}
             >
+              {/* Decoración de fondo */}
               <div
-                className="w-12 h-12 flex-shrink-0 flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #c026d3, #86198f)' }}
+                className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-15 pointer-events-none"
+                style={{ background: 'radial-gradient(circle, #c026d3, transparent 70%)' }}
                 aria-hidden="true"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                </svg>
-              </div>
-              <div>
-                <p className="text-[11px] tracking-[2px] uppercase text-soft-grey mb-1">Fundada en</p>
-                <p className="font-serif text-[22px] text-charcoal font-semibold leading-none">2021</p>
-              </div>
-              <div className="w-px h-10 bg-charcoal/10 mx-2" aria-hidden="true" />
-              <div>
-                <p className="text-[11px] tracking-[2px] uppercase text-soft-grey mb-1">Sede principal</p>
-                <p className="font-serif text-[18px] text-charcoal font-light leading-none">Dosquebradas, Risaralda</p>
+              />
+
+              <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
+                {/* Foto representante legal — clickeable */}
+                <button
+                  onClick={() => setShowLightbox(true)}
+                  className="group relative flex-shrink-0 cursor-pointer focus:outline-none focus-visible:ring-4 focus-visible:ring-magenta/50 rounded-full"
+                  aria-label="Ver foto completa de Mónica Jhoana Ospina"
+                >
+                  <img
+                    src={ASSETS.representante}
+                    alt="Mónica Jhoana Ospina — Representante Legal"
+                    className="w-36 h-36 sm:w-40 sm:h-40 rounded-full object-cover object-top ring-4 ring-magenta/40 shadow-xl group-hover:ring-magenta/70 group-hover:scale-105 transition-all duration-300"
+                  />
+                  {/* Indicador de zoom */}
+                  <span className="absolute bottom-1 right-1 bg-magenta text-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                    </svg>
+                  </span>
+                </button>
+
+                <div className="text-center sm:text-left">
+                  <p className="text-[10px] tracking-[3px] uppercase text-magenta font-semibold mb-2">
+                    Representante Legal & Fundadora
+                  </p>
+                  <p className="font-serif text-[24px] sm:text-[28px] text-charcoal font-semibold leading-tight">
+                    Mónica Jhoana Ospina
+                  </p>
+                  <p className="text-[14px] text-soft-grey font-light mt-2 leading-relaxed">
+                    Líder social comprometida con la transformación de comunidades vulnerables desde 2021.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

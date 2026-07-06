@@ -1,27 +1,22 @@
 import { useState } from 'react'
 import { cn } from '@/shared/utils/cn'
+import { ASSETS } from '@/shared/config/assets'
 
 const TESTIMONIOS = [
   {
     id: 1,
-    quote: 'Gracias a Mujer Emprende aprendí a confeccionar mis propios diseños. Hoy tengo mi taller y genero ingresos para mi familia. La fundación me devolvió la confianza en mí misma.',
-    name: 'Participante Programa Mujer Emprende',
-    program: 'Mujer Emprende',
-    initials: 'ME',
+    image: ASSETS.galleryTestimonios[0],
+    alt: 'Testimonio beneficiaria 1',
   },
   {
     id: 2,
-    quote: 'Las capacitaciones psicosociales me ayudaron a sanar heridas que cargaba hace años. Ahora soy una mujer más fuerte y puedo ayudar a otras.',
-    name: 'Beneficiaria Capacitaciones Psicosociales',
-    program: 'Capacitaciones Psicosociales',
-    initials: 'CP',
+    image: ASSETS.galleryTestimonios[1],
+    alt: 'Testimonio beneficiaria 2',
   },
   {
     id: 3,
-    quote: 'Nunca imaginé que podría tener mi propio negocio. El programa de emprendimiento me dio las herramientas y el acompañamiento para lograrlo.',
-    name: 'Egresada Estrategias para Emprendedores',
-    program: 'Estrategias para Emprendedores',
-    initials: 'EE',
+    image: ASSETS.galleryTestimonios[2],
+    alt: 'Testimonio beneficiaria 3',
   },
 ]
 
@@ -31,8 +26,8 @@ export default function TestimoniosSection() {
   return (
     <section className="py-24 lg:py-32 bg-white relative overflow-hidden" aria-labelledby="testimonios-title">
 
-      {/* Decoración sutil */}
-      <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-[0.04] pointer-events-none"
+      {/* Decoración ambiental */}
+      <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-[0.03] pointer-events-none"
         style={{ background: 'radial-gradient(circle, #c026d3, transparent 70%)' }}
         aria-hidden="true"
       />
@@ -56,58 +51,68 @@ export default function TestimoniosSection() {
           </p>
         </div>
 
-        {/* Testimonio activo */}
-        <div className="max-w-3xl mx-auto">
-          <div className="relative bg-cream rounded-2xl p-10 lg:p-14 border border-charcoal/5">
+        {/* Imagen principal con marco decorativo */}
+        <div className="max-w-4xl mx-auto">
 
-            {/* Comilla decorativa */}
-            <span
-              className="absolute top-6 left-8 font-serif text-[120px] leading-none text-magenta/10 pointer-events-none select-none"
-              aria-hidden="true"
-            >
-              "
-            </span>
+          <div className="relative">
 
-            {/* Quote */}
-            <blockquote className="relative z-10 mb-8">
-              <p
-                className="font-serif italic text-charcoal leading-relaxed"
-                style={{ fontSize: 'clamp(18px, 2.2vw, 24px)' }}
-              >
-                {TESTIMONIOS[active].quote}
-              </p>
-            </blockquote>
+            {/* Corner accents — viven fuera del overflow hidden */}
+            <div className="absolute -top-3 -left-3 w-12 h-12 sm:w-16 sm:h-16 pointer-events-none" aria-hidden="true">
+              <div className="absolute top-0 left-0 w-full h-[2.5px]"
+                style={{ background: 'linear-gradient(90deg, #c026d3, transparent)' }} />
+              <div className="absolute top-0 left-0 h-full w-[2.5px]"
+                style={{ background: 'linear-gradient(180deg, #c026d3, transparent)' }} />
+            </div>
 
-            {/* Autor */}
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-magenta to-magenta-dark flex items-center justify-center text-white font-bold text-sm">
-                {TESTIMONIOS[active].initials}
-              </div>
-              <div>
-                <p className="text-charcoal font-medium text-[14px]">
-                  {TESTIMONIOS[active].name}
-                </p>
-                <p className="text-soft-grey text-[12px]">
-                  {TESTIMONIOS[active].program}
-                </p>
-              </div>
+            <div className="absolute -bottom-3 -right-3 w-12 h-12 sm:w-16 sm:h-16 pointer-events-none" aria-hidden="true">
+              <div className="absolute bottom-0 right-0 w-full h-[2.5px]"
+                style={{ background: 'linear-gradient(270deg, #c026d3, transparent)' }} />
+              <div className="absolute bottom-0 right-0 h-full w-[2.5px]"
+                style={{ background: 'linear-gradient(0deg, #c026d3, transparent)' }} />
+            </div>
+
+            {/* Imagen */}
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white">
+              {/* Accent line top */}
+              <div className="absolute top-0 inset-x-0 h-[2.5px] z-10"
+                style={{ background: 'linear-gradient(90deg, transparent, #c026d3 30%, #e879f9 50%, #c026d3 70%, transparent)' }}
+                aria-hidden="true"
+              />
+
+              <img
+                src={TESTIMONIOS[active].image}
+                alt={TESTIMONIOS[active].alt}
+                className="w-full h-auto object-contain transition-all duration-400 ease-out"
+              />
+
+              {/* Accent line bottom */}
+              <div className="absolute bottom-0 inset-x-0 h-[2.5px] z-10"
+                style={{ background: 'linear-gradient(90deg, transparent, #c026d3 30%, #e879f9 50%, #c026d3 70%, transparent)' }}
+                aria-hidden="true"
+              />
             </div>
           </div>
 
-          {/* Dots navegación */}
-          <div className="flex justify-center gap-3 mt-8">
-            {TESTIMONIOS.map((_, i) => (
+          {/* Thumbnails */}
+          <div className="flex justify-center gap-4 sm:gap-5 mt-10">
+            {TESTIMONIOS.map((t, i) => (
               <button
-                key={i}
+                key={t.id}
                 onClick={() => setActive(i)}
                 className={cn(
-                  'h-3 rounded-full transition-all duration-300',
+                  'relative rounded-xl overflow-hidden transition-all duration-300 ease-out',
                   i === active
-                    ? 'bg-magenta w-10'
-                    : 'bg-charcoal/15 hover:bg-charcoal/30 w-3'
+                    ? 'ring-2 ring-magenta ring-offset-2 ring-offset-white shadow-lg scale-105'
+                    : 'opacity-50 hover:opacity-90 hover:scale-105 ring-1 ring-charcoal/10'
                 )}
                 aria-label={`Ver testimonio ${i + 1}`}
-              />
+              >
+                <img
+                  src={t.image}
+                  alt={t.alt}
+                  className="w-20 h-20 sm:w-24 sm:h-24 object-cover"
+                />
+              </button>
             ))}
           </div>
         </div>
