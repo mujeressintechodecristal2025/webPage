@@ -34,7 +34,7 @@ export default function AdminBlogFormPage() {
 
   const mutation      = isEditMode ? updateMutation : createMutation
   const serverError   = mutation.isError
-    ? ((mutation.error as ProblemDetail)?.detail ?? 'Error al guardar el post.')
+    ? ((mutation.error as unknown as ProblemDetail)?.detail ?? 'Error al guardar el post.')
     : null
 
   const handleSubmit = async (data: BlogPostFormData) => {
