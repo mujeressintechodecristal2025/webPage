@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.mstc.platform.modules.blog.domain.model.BlogPost;
 import org.mstc.platform.modules.blog.domain.model.BlogStatus;
+import org.mstc.platform.shared.persistence.StringListConverter;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -47,9 +47,10 @@ public class BlogPostJpaEntity {
     @Column(length = 100)
     private String category;
 
-    // PostgreSQL TEXT[] — se almacena como array nativo
-    @Column(columnDefinition = "text[]")
-    private String[] tags;
+    // Almacenado como CSV — compatible con PostgreSQL TEXT[] y H2 CLOB
+    @Convert(converter = StringListConverter.class)
+    @Column(columnDefinition = "CLOB")
+    private List<String> tags;
 
     @Column(nullable = false, length = 20)
     private String status;
@@ -90,7 +91,7 @@ public class BlogPostJpaEntity {
                 .body(d.getBody())
                 .imageS3Key(d.getImageS3Key())
                 .category(d.getCategory())
-                .tags(tagsToArray(d.getTags()))
+                .tags(d.getTags() != null ? d.getTags() : Collections.emptyList())
                 .status(d.getStatus().name())
                 .authorName(d.getAuthorName())
                 .authorId(d.getAuthorId())
@@ -111,7 +112,7 @@ public class BlogPostJpaEntity {
                 .body(body)
                 .imageS3Key(imageS3Key)
                 .category(category)
-                .tags(tagsToList(tags))
+                .tags(tags != null ? tags : Collections.emptyList())
                 .status(BlogStatus.valueOf(status))
                 .authorName(authorName)
                 .authorId(authorId)
@@ -119,17 +120,5 @@ public class BlogPostJpaEntity {
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .build();
-    }
-
-    // ── Helpers de conversión ─────────────────────────────────────────────
-
-    private static String[] tagsToArray(List<String> tags) {
-        if (tags == null || tags.isEmpty()) return new String[0];
-        return tags.toArray(new String[0]);
-    }
-
-    private static List<String> tagsToList(String[] tags) {
-        if (tags == null || tags.length == 0) return Collections.emptyList();
-        return Arrays.asList(tags);
     }
 }
