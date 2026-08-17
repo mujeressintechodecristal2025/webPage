@@ -12,6 +12,11 @@ const NAV_LINKS = [
   { label: 'Contacto',  href: '#contacto' },
 ]
 
+// Enlace de página completa (no scroll)
+const PAGE_LINKS = [
+  { label: 'Blog', to: '/blog' },
+]
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -110,6 +115,20 @@ export default function Navbar() {
               </button>
             </li>
           ))}
+          {PAGE_LINKS.map((link) => (
+            <li key={link.to}>
+              <Link
+                to={link.to}
+                className="text-[11px] tracking-[2px] uppercase text-charcoal/70 font-light hover:text-magenta transition-colors duration-200 relative group py-1"
+              >
+                {link.label}
+                <span
+                  className="absolute bottom-0 left-0 w-0 h-px bg-magenta transition-all duration-300 group-hover:w-full"
+                  aria-hidden="true"
+                />
+              </Link>
+            </li>
+          ))}
         </ul>
 
         {/* CTA desktop */}
@@ -164,6 +183,19 @@ export default function Navbar() {
               </button>
             </li>
           </ul>
+          {/* Blog en el menú mobile */}
+          <div className="mt-3 border-t border-magenta/10 pt-3">
+            {PAGE_LINKS.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMenuOpen(false)}
+                className="block py-3 px-2 text-[12px] tracking-[2px] uppercase text-charcoal/70 font-light hover:text-magenta hover:bg-magenta/5 transition-all rounded"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </nav>

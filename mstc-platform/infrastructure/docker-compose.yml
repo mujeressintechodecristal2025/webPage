@@ -27,16 +27,17 @@ services:
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    image: valkey/valkey:7-alpine
     container_name: mstc-redis
     restart: unless-stopped
-    command: redis-server --requirepass mstc_redis_dev
+    # Valkey — fork BSD de Redis 100% compatible (licencia más permisiva que SSPL)
+    command: valkey-server --requirepass mstc_redis_dev
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "--pass", "mstc_redis_dev", "ping"]
+      test: ["CMD", "valkey-cli", "--pass", "mstc_redis_dev", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5

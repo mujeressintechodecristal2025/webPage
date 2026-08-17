@@ -20,6 +20,7 @@ const ROUTES = [
   '/galeria',
   '/transparencia',
   '/politica-de-privacidad',
+  '/blog',
 ]
 
 const PORT = 4173
