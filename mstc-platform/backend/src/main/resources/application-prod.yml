@@ -35,6 +35,8 @@ spring:
 
   jpa:
     show-sql: false
+    hibernate:
+      ddl-auto: none              # Flyway gestiona el schema — no validar
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging:
