@@ -117,7 +117,7 @@ Resources:
   BackendInstance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t2.micro
+      InstanceType: t3.micro
       ImageId: !FindInMap [RegionAMI, !Ref 'AWS::Region', AMI]
       KeyName: !Ref SSHKeyName
       SecurityGroupIds:
@@ -261,7 +261,7 @@ Resources:
       VPCSecurityGroups:
         - !GetAtt DatabaseSecurityGroup.GroupId
       PubliclyAccessible: false
-      BackupRetentionPeriod: 7
+      BackupRetentionPeriod: 1
       PreferredBackupWindow: '03:00-04:00'
       PreferredMaintenanceWindow: 'Mon:04:00-Mon:05:00'
       AutoMinorVersionUpgrade: true

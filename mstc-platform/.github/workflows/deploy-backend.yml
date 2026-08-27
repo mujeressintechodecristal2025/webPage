@@ -1,4 +1,4 @@
-name: Deploy Backend → Oracle Cloud
+name: Deploy Backend → AWS EC2
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/deploy-backend.yml'
-  workflow_dispatch:  # Permite ejecución manual
+      - 'infrastructure/docker-compose.prod.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,103 +16,164 @@ concurrency:
   group: backend-deploy
   cancel-in-progress: true
 
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: mstc-backend
+
 jobs:
-  # ── Job 1: Build y test ──────────────────────────────────────────────────────
-  build:
-    name: Build Spring Boot
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Job 1: Build Docker image y push a ECR
+  # ══════════════════════════════════════════════════════════════════════════
+
+  build-and-push:
+    name: Build & Push Docker Image
     runs-on: ubuntu-latest
+
+    outputs:
+      image: ${{ steps.build.outputs.image }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 21
-        uses: actions/setup-java@v4
+      - name: Configurar AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'gradle'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Grant execute permission to Gradlew
-        working-directory: backend
-        run: chmod +x gradlew
+      - name: Login a Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build JAR (sin tests — los tests corren en PR, no en deploy)
-        working-directory: backend
-        run: ./gradlew bootJar -x test --no-daemon
+      - name: Crear repositorio ECR si no existe
+        run: |
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} 2>/dev/null || \
+          aws ecr create-repository \
+            --repository-name ${{ env.ECR_REPOSITORY }} \
+            --image-scanning-configuration scanOnPush=true \
+            --encryption-configuration encryptionType=AES256
+
+      - name: Build y push imagen Docker
+        id: build
         env:
-          APP_ENV: prod
-
-      - name: Verificar JAR generado
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         working-directory: backend
-        run: ls -lh build/libs/*.jar
+        run: |
+          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
+          IMAGE_LATEST="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest"
 
-      - name: Upload JAR como artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-jar
-          path: backend/build/libs/*.jar
-          retention-days: 1
+          echo "Building: $IMAGE_URI"
 
-  # ── Job 2: Deploy a Oracle Cloud via SSH ────────────────────────────────────
+          docker build \
+            --tag "$IMAGE_URI" \
+            --tag "$IMAGE_LATEST" \
+            --label "git.sha=${{ github.sha }}" \
+            --label "git.ref=${{ github.ref_name }}" \
+            .
+
+          docker push "$IMAGE_URI"
+          docker push "$IMAGE_LATEST"
+
+          echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
+          echo "✅ Imagen publicada: $IMAGE_URI"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Job 2: Deploy al EC2
+  # ══════════════════════════════════════════════════════════════════════════
+
   deploy:
-    name: Deploy to Oracle Cloud
-    needs: build
+    name: Deploy to EC2
+    needs: build-and-push
     runs-on: ubuntu-latest
+
     environment:
       name: production
-      url: https://api.fundacionmujeressintechodecristal.org
+      url: https://${{ vars.DOMAIN_NAME || 'api.fundacionmujeressintechodecristal.org' }}/api/v1/health
 
     steps:
-      - name: Download JAR artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-jar
-          path: ./jar
+      - name: Checkout (para docker-compose.prod.yml)
+        uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: Configurar SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.ORACLE_SSH_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.ORACLE_SSH_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Copiar JAR al servidor
+      - name: Deploy al servidor
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
         run: |
+          # Copiar docker-compose.prod.yml al servidor
           scp -i ~/.ssh/deploy_key \
-            ./jar/*.jar \
-            ${{ secrets.ORACLE_SSH_USER }}@${{ secrets.ORACLE_SSH_HOST }}:/opt/mstc/app/mstc-platform.jar.new
+            infrastructure/docker-compose.prod.yml \
+            $USER@$HOST:/opt/mstc/app/docker-compose.yml
 
-      - name: Reiniciar servicio en el servidor
-        run: |
-          ssh -i ~/.ssh/deploy_key \
-            ${{ secrets.ORACLE_SSH_USER }}@${{ secrets.ORACLE_SSH_HOST }} \
-            'bash -s' << 'ENDSSH'
-              set -e
+          # Ejecutar deploy en el servidor
+          ssh -i ~/.ssh/deploy_key $USER@$HOST << ENDSSH
+            set -e
 
-              # Mover el nuevo JAR al lugar definitivo
-              mv /opt/mstc/app/mstc-platform.jar.new /opt/mstc/app/mstc-platform.jar
+            echo "══════════════════════════════════════════"
+            echo "  Deploying: $IMAGE"
+            echo "══════════════════════════════════════════"
 
-              # Reiniciar el servicio systemd
-              sudo systemctl restart mstc-backend
+            # Login a ECR
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+              docker login --username AWS --password-stdin \
+              $(echo "$IMAGE" | cut -d/ -f1)
 
-              # Esperar hasta 60s a que el health check responda
-              echo "Esperando que el backend arranque..."
-              for i in $(seq 1 12); do
-                if curl -sf http://localhost:8080/actuator/health/liveness > /dev/null 2>&1; then
-                  echo "Backend listo ✓"
-                  exit 0
-                fi
-                sleep 5
-              done
+            # Pull nueva imagen
+            docker pull "$IMAGE"
 
-              echo "ERROR: El backend no respondió en 60 segundos"
-              sudo systemctl status mstc-backend --no-pager
-              exit 1
+            # Parar contenedor actual (si existe)
+            docker stop mstc-backend 2>/dev/null || true
+            docker rm mstc-backend 2>/dev/null || true
+
+            # Arrancar con la nueva imagen
+            ECR_IMAGE="$IMAGE" docker compose -f /opt/mstc/app/docker-compose.yml up -d
+
+            # Esperar a que el health check pase
+            echo "Esperando que el backend arranque..."
+            for i in \$(seq 1 24); do
+              if curl -sf http://localhost:8080/actuator/health/liveness > /dev/null 2>&1; then
+                echo "✅ Backend listo (intento \$i)"
+                exit 0
+              fi
+              sleep 5
+            done
+
+            echo "❌ Backend no respondió en 120 segundos"
+            docker logs mstc-backend --tail 50
+            exit 1
           ENDSSH
 
       - name: Verificar health check público
         run: |
           sleep 5
-          curl -sf https://api.fundacionmujeressintechodecristal.org/actuator/health \
-            || echo "Advertencia: health check externo no respondió (puede ser lag de DNS)"
+          curl -sf "https://${{ vars.DOMAIN_NAME || 'api.fundacionmujeressintechodecristal.org' }}/api/v1/health" || \
+            echo "⚠️ Health check público no respondió (puede ser DNS/SSL)"
+
+      - name: Limpiar imágenes antiguas en ECR
+        if: success()
+        run: |
+          # Mantener solo las últimas 5 imágenes
+          IMAGES=$(aws ecr describe-images \
+            --repository-name ${{ env.ECR_REPOSITORY }} \
+            --query 'sort_by(imageDetails,&imagePushedAt)[:-5].imageDigest' \
+            --output text 2>/dev/null || echo "")
+
+          if [ -n "$IMAGES" ]; then
+            for digest in $IMAGES; do
+              aws ecr batch-delete-image \
+                --repository-name ${{ env.ECR_REPOSITORY }} \
+                --image-ids imageDigest=$digest 2>/dev/null || true
+            done
+            echo "🧹 Imágenes antiguas eliminadas"
+          fi

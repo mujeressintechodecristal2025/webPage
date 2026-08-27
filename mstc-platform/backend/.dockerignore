@@ -1,0 +1,22 @@
+# Build artifacts
+build/
+bin/
+.gradle/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Docs
+*.md
+
+# Local config
+src/main/resources/application-local.yml
+src/main/resources/data-local.sql
+src/main/resources/db/migration-h2/

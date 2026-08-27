@@ -1,0 +1,36 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Docker Compose — Producción (EC2)
+# Solo corre el backend como contenedor.
+# PostgreSQL está en RDS (gestionado por AWS).
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+
+  backend:
+    image: ${ECR_IMAGE:-mstc-backend:latest}
+    container_name: mstc-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - /opt/mstc/app/.env
+    volumes:
+      # Claves JWT generadas por CloudFormation/user_data
+      - /opt/mstc/keys:/app/keys:ro
+      # Logs persistentes
+      - /opt/mstc/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/actuator/health/liveness"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
