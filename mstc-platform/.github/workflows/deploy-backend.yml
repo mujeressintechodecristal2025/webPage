@@ -110,7 +110,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Asegurar CloudWatch Log Groups
         run: |
@@ -128,12 +128,12 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
         run: |
           # Copiar docker-compose.prod.yml al servidor
-          scp -i ~/.ssh/deploy_key \
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             infrastructure/docker-compose.prod.yml \
             $USER@$HOST:/opt/mstc/app/docker-compose.yml
 
           # Ejecutar deploy en el servidor
-          ssh -i ~/.ssh/deploy_key $USER@$HOST << ENDSSH
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $USER@$HOST << ENDSSH
             set -e
 
             echo "══════════════════════════════════════════"
@@ -171,11 +171,12 @@ jobs:
           ENDSSH
 
       - name: Reiniciar CloudWatch Agent
+        continue-on-error: true
         env:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
         run: |
-          ssh -i ~/.ssh/deploy_key $USER@$HOST << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=10 $USER@$HOST << 'ENDSSH'
             # Reiniciar agent para asegurar que tome el log file nuevo
             sudo systemctl restart amazon-cloudwatch-agent 2>/dev/null || \
               echo "⚠️ CloudWatch Agent no instalado (se instalará con el stack)"

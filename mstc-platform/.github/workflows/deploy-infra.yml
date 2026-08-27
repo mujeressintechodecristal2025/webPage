@@ -78,6 +78,7 @@ jobs:
 
       - name: Actualizar CloudWatch Agent en EC2
         if: success()
+        continue-on-error: true
         env:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
@@ -88,14 +89,16 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
-          scp -i ~/.ssh/deploy_key -o ConnectTimeout=10 \
+          # Intentar copiar config y reiniciar agent (no-fatal si EC2 no accesible)
+          scp -i ~/.ssh/deploy_key -o ConnectTimeout=10 -o StrictHostKeyChecking=no \
             infrastructure/cloudwatch/amazon-cloudwatch-agent.json \
-            $USER@$HOST:/tmp/amazon-cloudwatch-agent.json 2>/dev/null && \
-
-          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 $USER@$HOST << 'ENDSSH' || echo "⚠️ EC2 no accesible — CW Agent se configurará en próximo deploy de backend"
+            $USER@$HOST:/tmp/amazon-cloudwatch-agent.json && \
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 -o StrictHostKeyChecking=no $USER@$HOST << 'ENDSSH'
             sudo cp /tmp/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
             sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
               -a fetch-config -m ec2 -s \
               -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
             echo "✅ CloudWatch Agent reconfigurado"
           ENDSSH
+
+          echo "⚠️ Si el EC2 no fue accesible, el CW Agent se configurará en el próximo deploy de backend"
