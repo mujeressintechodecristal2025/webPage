@@ -5,8 +5,8 @@ on:
     branches: [main]
     paths:
       - 'mstc-platform/backend/**'
+      - 'mstc-platform/infrastructure/**'
       - '.github/workflows/deploy-backend.yml'
-      - 'mstc-platform/infrastructure/docker-compose.prod.yml'
   workflow_dispatch:
 
 permissions:
@@ -19,16 +19,100 @@ concurrency:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: mstc-backend
+  STACK_NAME: mstc-platform
 
 jobs:
 
   # ══════════════════════════════════════════════════════════════════════════
-  # Job 1: Build Docker image y push a ECR
+  # Job 1: Infraestructura (CloudFormation)
+  # ══════════════════════════════════════════════════════════════════════════
+
+  infrastructure:
+    name: Update Infrastructure
+    runs-on: ubuntu-latest
+
+    outputs:
+      ec2_ip: ${{ steps.outputs.outputs.ec2_ip }}
+      rds_endpoint: ${{ steps.outputs.outputs.rds_endpoint }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy/Update CloudFormation Stack
+        run: |
+          # Verificar si el stack existe
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name ${{ env.STACK_NAME }} \
+            --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NOT_FOUND")
+
+          echo "Stack status: $STACK_STATUS"
+
+          if [ "$STACK_STATUS" = "NOT_FOUND" ]; then
+            echo "Creando stack..."
+            aws cloudformation create-stack \
+              --stack-name ${{ env.STACK_NAME }} \
+              --template-body file://mstc-platform/infrastructure/cloudformation/mstc-stack.yml \
+              --parameters \
+                ParameterKey=ProjectName,ParameterValue=mstc \
+                ParameterKey=DBPassword,ParameterValue=${{ secrets.DB_PASSWORD }} \
+                ParameterKey=DBUsername,ParameterValue=${{ secrets.DB_USERNAME }} \
+                ParameterKey=DBName,ParameterValue=${{ secrets.DB_NAME }} \
+                ParameterKey=SSHKeyName,ParameterValue=${{ secrets.SSH_KEY_NAME }} \
+                ParameterKey=AllowedSSHCidr,ParameterValue=0.0.0.0/0 \
+                ParameterKey=DomainName,ParameterValue=api.fundacionmujeressintechodecristal.org \
+              --capabilities CAPABILITY_NAMED_IAM \
+              --tags Key=Project,Value=mstc Key=Environment,Value=production
+
+            echo "Esperando a que el stack se cree..."
+            aws cloudformation wait stack-create-complete --stack-name ${{ env.STACK_NAME }}
+          elif [[ "$STACK_STATUS" == *"COMPLETE"* ]] && [ "$STACK_STATUS" != "DELETE_COMPLETE" ]; then
+            echo "Actualizando stack..."
+            aws cloudformation update-stack \
+              --stack-name ${{ env.STACK_NAME }} \
+              --template-body file://mstc-platform/infrastructure/cloudformation/mstc-stack.yml \
+              --parameters \
+                ParameterKey=ProjectName,UsePreviousValue=true \
+                ParameterKey=DBPassword,UsePreviousValue=true \
+                ParameterKey=DBUsername,UsePreviousValue=true \
+                ParameterKey=DBName,UsePreviousValue=true \
+                ParameterKey=SSHKeyName,UsePreviousValue=true \
+                ParameterKey=AllowedSSHCidr,ParameterValue=0.0.0.0/0 \
+                ParameterKey=DomainName,UsePreviousValue=true \
+              --capabilities CAPABILITY_NAMED_IAM 2>/dev/null || echo "No hay cambios en la infraestructura"
+
+            aws cloudformation wait stack-update-complete --stack-name ${{ env.STACK_NAME }} 2>/dev/null || true
+          else
+            echo "Stack en estado $STACK_STATUS — saltando actualización"
+          fi
+
+      - name: Obtener outputs del stack
+        id: outputs
+        run: |
+          EC2_IP=$(aws cloudformation describe-stacks --stack-name ${{ env.STACK_NAME }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`ServerIP`].OutputValue' --output text)
+          RDS_ENDPOINT=$(aws cloudformation describe-stacks --stack-name ${{ env.STACK_NAME }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`DatabaseEndpoint`].OutputValue' --output text)
+
+          echo "ec2_ip=$EC2_IP" >> $GITHUB_OUTPUT
+          echo "rds_endpoint=$RDS_ENDPOINT" >> $GITHUB_OUTPUT
+          echo "EC2 IP: $EC2_IP"
+          echo "RDS: $RDS_ENDPOINT"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Job 2: Build Docker image y push a ECR
   # ══════════════════════════════════════════════════════════════════════════
 
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
+    needs: infrastructure
 
     outputs:
       image: ${{ steps.build.outputs.image }}
@@ -82,42 +166,42 @@ jobs:
           echo "✅ Imagen publicada: $IMAGE_URI"
 
   # ══════════════════════════════════════════════════════════════════════════
-  # Job 2: Deploy al EC2
+  # Job 3: Deploy al EC2
   # ══════════════════════════════════════════════════════════════════════════
 
   deploy:
     name: Deploy to EC2
-    needs: build-and-push
+    needs: [infrastructure, build-and-push]
     runs-on: ubuntu-latest
 
     environment:
       name: production
-      url: https://${{ vars.DOMAIN_NAME || 'api.fundacionmujeressintechodecristal.org' }}/api/v1/health
+      url: https://api.fundacionmujeressintechodecristal.org/api/v1/health
 
     steps:
-      - name: Checkout (para docker-compose.prod.yml)
-        uses: actions/checkout@v4
+      - name: Configurar AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Configurar SSH
+        env:
+          EC2_IP: ${{ needs.infrastructure.outputs.ec2_ip }}
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keyscan -H "$EC2_IP" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy al servidor
         env:
           IMAGE: ${{ needs.build-and-push.outputs.image }}
-          HOST: ${{ secrets.EC2_HOST }}
+          EC2_IP: ${{ needs.infrastructure.outputs.ec2_ip }}
           USER: ${{ secrets.EC2_USER }}
         run: |
-          # Copiar docker-compose.prod.yml al servidor
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
-            mstc-platform/infrastructure/docker-compose.prod.yml \
-            $USER@$HOST:/opt/mstc/app/docker-compose.yml
-
-          # Ejecutar deploy en el servidor
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $USER@$HOST << ENDSSH
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 $USER@$EC2_IP << ENDSSH
             set -e
 
             echo "══════════════════════════════════════════"
@@ -127,7 +211,7 @@ jobs:
             # Login a ECR
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
               docker login --username AWS --password-stdin \
-              $(echo "$IMAGE" | cut -d/ -f1)
+              \$(echo "$IMAGE" | cut -d/ -f1)
 
             # Pull nueva imagen
             docker pull "$IMAGE"
@@ -136,8 +220,15 @@ jobs:
             docker stop mstc-backend 2>/dev/null || true
             docker rm mstc-backend 2>/dev/null || true
 
-            # Arrancar con la nueva imagen
-            ECR_IMAGE="$IMAGE" docker compose -f /opt/mstc/app/docker-compose.yml up -d
+            # Arrancar con memoria limitada (t3.micro = 1GB total)
+            docker run -d --name mstc-backend \
+              --restart unless-stopped \
+              -p 8080:8080 \
+              --memory=512m \
+              --env-file /opt/mstc/app/.env \
+              -v /opt/mstc/keys:/app/keys:ro \
+              -e JAVA_OPTS="-Xmx384m -Xms256m -XX:+UseG1GC" \
+              "$IMAGE"
 
             # Esperar a que el health check pase
             echo "Esperando que el backend arranque..."
@@ -155,21 +246,21 @@ jobs:
           ENDSSH
 
       - name: Verificar health check público
+        if: success()
         run: |
           sleep 5
-          curl -sf "https://${{ vars.DOMAIN_NAME || 'api.fundacionmujeressintechodecristal.org' }}/api/v1/health" || \
-            echo "⚠️ Health check público no respondió (puede ser DNS/SSL)"
+          curl -sf "https://api.fundacionmujeressintechodecristal.org/api/v1/health" || \
+            echo "⚠️ Health check público no respondió (DNS/SSL puede tardar)"
 
       - name: Limpiar imágenes antiguas en ECR
         if: success()
         run: |
-          # Mantener solo las últimas 5 imágenes
           IMAGES=$(aws ecr describe-images \
             --repository-name ${{ env.ECR_REPOSITORY }} \
             --query 'sort_by(imageDetails,&imagePushedAt)[:-5].imageDigest' \
             --output text 2>/dev/null || echo "")
 
-          if [ -n "$IMAGES" ]; then
+          if [ -n "$IMAGES" ] && [ "$IMAGES" != "None" ]; then
             for digest in $IMAGES; do
               aws ecr batch-delete-image \
                 --repository-name ${{ env.ECR_REPOSITORY }} \
