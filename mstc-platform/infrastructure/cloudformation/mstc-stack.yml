@@ -82,6 +82,7 @@ Resources:
 
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    DependsOn: BackendSecurityGroup
     Properties:
       GroupDescription: Permite PostgreSQL solo desde el backend EC2
       GroupName: !Sub '${ProjectName}-database-sg'
@@ -89,7 +90,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          SourceSecurityGroupId: !Ref BackendSecurityGroup
+          SourceSecurityGroupId: !GetAtt BackendSecurityGroup.GroupId
           Description: PostgreSQL desde backend EC2
       Tags:
         - Key: Name
@@ -120,7 +121,7 @@ Resources:
       ImageId: !FindInMap [RegionAMI, !Ref 'AWS::Region', AMI]
       KeyName: !Ref SSHKeyName
       SecurityGroupIds:
-        - !Ref BackendSecurityGroup
+        - !GetAtt BackendSecurityGroup.GroupId
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
@@ -258,7 +259,7 @@ Resources:
       MasterUsername: !Ref DBUsername
       MasterUserPassword: !Ref DBPassword
       VPCSecurityGroups:
-        - !Ref DatabaseSecurityGroup
+        - !GetAtt DatabaseSecurityGroup.GroupId
       PubliclyAccessible: false
       BackupRetentionPeriod: 7
       PreferredBackupWindow: '03:00-04:00'
