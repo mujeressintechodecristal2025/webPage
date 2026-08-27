@@ -103,7 +103,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy al servidor
         env:
@@ -112,12 +112,12 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
         run: |
           # Copiar docker-compose.prod.yml al servidor
-          scp -i ~/.ssh/deploy_key \
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             mstc-platform/infrastructure/docker-compose.prod.yml \
             $USER@$HOST:/opt/mstc/app/docker-compose.yml
 
           # Ejecutar deploy en el servidor
-          ssh -i ~/.ssh/deploy_key $USER@$HOST << ENDSSH
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $USER@$HOST << ENDSSH
             set -e
 
             echo "══════════════════════════════════════════"
