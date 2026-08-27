@@ -1,0 +1,179 @@
+name: Deploy Backend → AWS EC2
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mstc-platform/backend/**'
+      - '.github/workflows/deploy-backend.yml'
+      - 'mstc-platform/infrastructure/docker-compose.prod.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: mstc-backend
+
+jobs:
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Job 1: Build Docker image y push a ECR
+  # ══════════════════════════════════════════════════════════════════════════
+
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login a Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Crear repositorio ECR si no existe
+        run: |
+          aws ecr describe-repositories --repository-names ${{ env.ECR_REPOSITORY }} 2>/dev/null || \
+          aws ecr create-repository \
+            --repository-name ${{ env.ECR_REPOSITORY }} \
+            --image-scanning-configuration scanOnPush=true \
+            --encryption-configuration encryptionType=AES256
+
+      - name: Build y push imagen Docker
+        id: build
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: mstc-platform/backend
+        run: |
+          IMAGE_URI="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:$IMAGE_TAG"
+          IMAGE_LATEST="$ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest"
+
+          echo "Building: $IMAGE_URI"
+
+          docker build \
+            --tag "$IMAGE_URI" \
+            --tag "$IMAGE_LATEST" \
+            --label "git.sha=${{ github.sha }}" \
+            --label "git.ref=${{ github.ref_name }}" \
+            .
+
+          docker push "$IMAGE_URI"
+          docker push "$IMAGE_LATEST"
+
+          echo "image=$IMAGE_URI" >> $GITHUB_OUTPUT
+          echo "✅ Imagen publicada: $IMAGE_URI"
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Job 2: Deploy al EC2
+  # ══════════════════════════════════════════════════════════════════════════
+
+  deploy:
+    name: Deploy to EC2
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+      url: https://${{ vars.DOMAIN_NAME || 'api.fundacionmujeressintechodecristal.org' }}/api/v1/health
+
+    steps:
+      - name: Checkout (para docker-compose.prod.yml)
+        uses: actions/checkout@v4
+
+      - name: Configurar SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy al servidor
+        env:
+          IMAGE: ${{ needs.build-and-push.outputs.image }}
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+        run: |
+          # Copiar docker-compose.prod.yml al servidor
+          scp -i ~/.ssh/deploy_key \
+            mstc-platform/infrastructure/docker-compose.prod.yml \
+            $USER@$HOST:/opt/mstc/app/docker-compose.yml
+
+          # Ejecutar deploy en el servidor
+          ssh -i ~/.ssh/deploy_key $USER@$HOST << ENDSSH
+            set -e
+
+            echo "══════════════════════════════════════════"
+            echo "  Deploying: $IMAGE"
+            echo "══════════════════════════════════════════"
+
+            # Login a ECR
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
+              docker login --username AWS --password-stdin \
+              $(echo "$IMAGE" | cut -d/ -f1)
+
+            # Pull nueva imagen
+            docker pull "$IMAGE"
+
+            # Parar contenedor actual (si existe)
+            docker stop mstc-backend 2>/dev/null || true
+            docker rm mstc-backend 2>/dev/null || true
+
+            # Arrancar con la nueva imagen
+            ECR_IMAGE="$IMAGE" docker compose -f /opt/mstc/app/docker-compose.yml up -d
+
+            # Esperar a que el health check pase
+            echo "Esperando que el backend arranque..."
+            for i in \$(seq 1 24); do
+              if curl -sf http://localhost:8080/actuator/health/liveness > /dev/null 2>&1; then
+                echo "✅ Backend listo (intento \$i)"
+                exit 0
+              fi
+              sleep 5
+            done
+
+            echo "❌ Backend no respondió en 120 segundos"
+            docker logs mstc-backend --tail 50
+            exit 1
+          ENDSSH
+
+      - name: Verificar health check público
+        run: |
+          sleep 5
+          curl -sf "https://${{ vars.DOMAIN_NAME || 'api.fundacionmujeressintechodecristal.org' }}/api/v1/health" || \
+            echo "⚠️ Health check público no respondió (puede ser DNS/SSL)"
+
+      - name: Limpiar imágenes antiguas en ECR
+        if: success()
+        run: |
+          # Mantener solo las últimas 5 imágenes
+          IMAGES=$(aws ecr describe-images \
+            --repository-name ${{ env.ECR_REPOSITORY }} \
+            --query 'sort_by(imageDetails,&imagePushedAt)[:-5].imageDigest' \
+            --output text 2>/dev/null || echo "")
+
+          if [ -n "$IMAGES" ]; then
+            for digest in $IMAGES; do
+              aws ecr batch-delete-image \
+                --repository-name ${{ env.ECR_REPOSITORY }} \
+                --image-ids imageDigest=$digest 2>/dev/null || true
+            done
+            echo "🧹 Imágenes antiguas eliminadas"
+          fi
