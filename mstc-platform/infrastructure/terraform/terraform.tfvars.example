@@ -1,0 +1,14 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Variables de Terraform — copia este archivo como terraform.tfvars
+# cp terraform.tfvars.example terraform.tfvars
+# NUNCA subir terraform.tfvars al repositorio (ya está en .gitignore)
+# ══════════════════════════════════════════════════════════════════════════════
+
+aws_region          = "us-east-1"
+project_name        = "mstc"
+db_username         = "mstc_user"
+db_password         = "CAMBIA_ESTO_por_un_password_seguro_de_al_menos_16_chars"
+db_name             = "mstc_db"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+allowed_ssh_cidr    = "0.0.0.0/0"    # Cambia por tu IP: "181.XX.XX.XX/32"
+domain_name         = "api.fundacionmujeressintechodecristal.org"
