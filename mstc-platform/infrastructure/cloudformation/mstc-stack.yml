@@ -1,0 +1,426 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Infraestructura MSTC Platform - Fundacion Mujeres Sin Techo de Cristal.
+  Crea EC2 (backend), RDS PostgreSQL, S3 (imagenes), Security Groups.
+  Todo en AWS Free Tier ($0/mes durante 12 meses).
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Parametros — los llenas al crear el stack desde la consola AWS
+# ══════════════════════════════════════════════════════════════════════════════
+
+Parameters:
+
+  ProjectName:
+    Type: String
+    Default: mstc
+    Description: Nombre del proyecto (usado como prefijo en los recursos)
+
+  DBPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 12
+    Description: Password de la base de datos PostgreSQL (minimo 12 caracteres)
+
+  DBUsername:
+    Type: String
+    Default: mstc_user
+    Description: Usuario de la base de datos
+
+  DBName:
+    Type: String
+    Default: mstc_db
+    Description: Nombre de la base de datos
+
+  SSHKeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Key Pair existente para SSH al EC2 (crear antes en EC2 > Key Pairs)
+
+  AllowedSSHCidr:
+    Type: String
+    Default: '0.0.0.0/0'
+    Description: IP permitida para SSH (tu IP/32 para mas seguridad, o 0.0.0.0/0)
+
+  DomainName:
+    Type: String
+    Default: api.fundacionmujeressintechodecristal.org
+    Description: Dominio del backend API
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Recursos
+# ══════════════════════════════════════════════════════════════════════════════
+
+Resources:
+
+  # ── Security Group: Backend (EC2) ──────────────────────────────────────────
+
+  BackendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Permite SSH, HTTP y HTTPS al servidor backend MSTC
+      GroupName: !Sub '${ProjectName}-backend-sg'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AllowedSSHCidr
+          Description: SSH
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: '0.0.0.0/0'
+          Description: HTTP
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: '0.0.0.0/0'
+          Description: HTTPS
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-backend-sg'
+
+  # ── Security Group: Database (RDS) ─────────────────────────────────────────
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Permite PostgreSQL solo desde el backend EC2
+      GroupName: !Sub '${ProjectName}-database-sg'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref BackendSecurityGroup
+          Description: PostgreSQL desde backend EC2
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-database-sg'
+
+  # ── Elastic IP (IP fija para DNS) ──────────────────────────────────────────
+
+  BackendEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-backend-eip'
+
+  BackendEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref BackendInstance
+      EIP: !Ref BackendEIP
+
+  # ── EC2 Instance: Backend Server ───────────────────────────────────────────
+
+  BackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !FindInMap [RegionAMI, !Ref 'AWS::Region', AMI]
+      KeyName: !Ref SSHKeyName
+      SecurityGroupIds:
+        - !Ref BackendSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 20
+            VolumeType: gp3
+            DeleteOnTermination: true
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -e
+          exec > /var/log/user-data.log 2>&1
+          echo "=== MSTC: Iniciando configuracion del servidor ==="
+
+          # Actualizar sistema
+          apt-get update -y
+          apt-get upgrade -y
+
+          # Instalar Java 21
+          apt-get install -y openjdk-21-jre-headless
+
+          # Instalar Nginx + Certbot
+          apt-get install -y nginx certbot python3-certbot-nginx
+
+          # Instalar cliente PostgreSQL
+          apt-get install -y postgresql-client
+
+          # Crear directorios
+          mkdir -p /opt/mstc/app /opt/mstc/keys /var/log/mstc
+          chown -R ubuntu:ubuntu /opt/mstc /var/log/mstc
+
+          # Generar claves JWT RSA-2048
+          openssl genrsa -out /opt/mstc/keys/private_key.pem 2048
+          openssl rsa -in /opt/mstc/keys/private_key.pem -pubout -out /opt/mstc/keys/public_key.pem
+          chown ubuntu:ubuntu /opt/mstc/keys/*.pem
+          chmod 600 /opt/mstc/keys/private_key.pem
+
+          # Generar master key AES-256
+          openssl rand -base64 32 > /opt/mstc/keys/encryption_key.txt
+          chown ubuntu:ubuntu /opt/mstc/keys/encryption_key.txt
+          chmod 600 /opt/mstc/keys/encryption_key.txt
+
+          # Configurar Nginx como reverse proxy
+          cat > /etc/nginx/sites-available/mstc-api << 'NGINX'
+          server {
+              listen 80;
+              server_name ${DomainName};
+
+              location / {
+                  proxy_pass http://localhost:8080;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  proxy_read_timeout 60s;
+              }
+          }
+          NGINX
+
+          ln -sf /etc/nginx/sites-available/mstc-api /etc/nginx/sites-enabled/
+          rm -f /etc/nginx/sites-enabled/default
+          nginx -t && systemctl reload nginx
+
+          # Crear archivo .env con variables de entorno del backend
+          cat > /opt/mstc/app/.env << 'ENVFILE'
+          APP_ENV=prod
+          DATABASE_URL=jdbc:postgresql://${DatabaseInstance.Endpoint.Address}:5432/${DBName}
+          DATABASE_USERNAME=${DBUsername}
+          DATABASE_PASSWORD=${DBPassword}
+          REDIS_URL=redis://localhost:6379
+          REDIS_PASSWORD=
+          JWT_PRIVATE_KEY_PATH=/opt/mstc/keys/private_key.pem
+          JWT_PUBLIC_KEY_PATH=/opt/mstc/keys/public_key.pem
+          SMTP_HOST=localhost
+          SMTP_PORT=25
+          SMTP_USERNAME=
+          SMTP_PASSWORD=
+          ENVFILE
+
+          # Agregar ENCRYPTION_MASTER_KEY (generada arriba)
+          echo "ENCRYPTION_MASTER_KEY=$(cat /opt/mstc/keys/encryption_key.txt)" >> /opt/mstc/app/.env
+          chown ubuntu:ubuntu /opt/mstc/app/.env
+          chmod 600 /opt/mstc/app/.env
+
+          # Crear servicio systemd
+          cat > /etc/systemd/system/mstc-backend.service << 'SYSTEMD'
+          [Unit]
+          Description=MSTC Platform Backend
+          After=network.target
+
+          [Service]
+          User=ubuntu
+          WorkingDirectory=/opt/mstc/app
+          ExecStart=/usr/bin/java -jar -Xmx768m /opt/mstc/app/mstc-platform.jar
+          Restart=always
+          RestartSec=10
+          EnvironmentFile=/opt/mstc/app/.env
+
+          [Install]
+          WantedBy=multi-user.target
+          SYSTEMD
+
+          systemctl daemon-reload
+          systemctl enable mstc-backend
+
+          echo "=== MSTC: Configuracion completada ==="
+          echo "Falta: subir JAR a /opt/mstc/app/mstc-platform.jar"
+          echo "Falta: sudo systemctl start mstc-backend"
+          echo "Falta: sudo certbot --nginx -d ${DomainName}"
+
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-backend'
+
+  # ── RDS: PostgreSQL ────────────────────────────────────────────────────────
+
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets para RDS MSTC
+      DBSubnetGroupName: !Sub '${ProjectName}-db-subnet-group'
+      SubnetIds: !Split
+        - ','
+        - !GetAtt DefaultSubnets.SubnetIds
+
+  DatabaseInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub '${ProjectName}-db'
+      Engine: postgres
+      EngineVersion: '16.3'
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      StorageType: gp2
+      DBName: !Ref DBName
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      VPCSecurityGroups:
+        - !Ref DatabaseSecurityGroup
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 7
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'Mon:04:00-Mon:05:00'
+      AutoMinorVersionUpgrade: true
+      DeletionProtection: false
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-database'
+
+  # ── S3: Bucket de imagenes ─────────────────────────────────────────────────
+
+  ImagesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-images-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET, HEAD]
+            AllowedOrigins:
+              - 'https://www.fundacionmujeressintechodecristal.org'
+              - 'https://fundacionmujeressintechodecristal.org'
+              - 'http://localhost:3000'
+            MaxAge: 3600
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-images'
+
+  ImagesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ImagesBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub '${ImagesBucket.Arn}/*'
+
+  # ── Custom Resource: obtener subnets por defecto ───────────────────────────
+  # (Necesario porque CloudFormation no tiene un datasource nativo para subnets)
+
+  DefaultSubnets:
+    Type: Custom::DefaultSubnets
+    Properties:
+      ServiceToken: !GetAtt GetSubnetsFunction.Arn
+
+  GetSubnetsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-get-default-subnets'
+      Runtime: python3.12
+      Handler: index.handler
+      Timeout: 30
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
+
+          def handler(event, context):
+              if event['RequestType'] == 'Delete':
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {})
+                  return
+
+              ec2 = boto3.client('ec2')
+              vpcs = ec2.describe_vpcs(Filters=[{'Name': 'isDefault', 'Values': ['true']}])
+              vpc_id = vpcs['Vpcs'][0]['VpcId']
+              subnets = ec2.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}])
+              subnet_ids = [s['SubnetId'] for s in subnets['Subnets']]
+
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, {
+                  'SubnetIds': ','.join(subnet_ids)
+              })
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-lambda-subnets-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DescribeSubnets
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeVpcs
+                  - ec2:DescribeSubnets
+                Resource: '*'
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Mappings — AMI de Ubuntu 22.04 por region
+# ══════════════════════════════════════════════════════════════════════════════
+
+Mappings:
+  RegionAMI:
+    us-east-1:
+      AMI: ami-0e1bed4f06a3b463d
+    us-east-2:
+      AMI: ami-0cb91c7de36eed2cb
+    us-west-1:
+      AMI: ami-0ca1f30768d0cf0e1
+    us-west-2:
+      AMI: ami-03c983f9003cb9cd1
+    sa-east-1:
+      AMI: ami-0fb4cf3a99aa89f72
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Outputs — Informacion que necesitas despues del despliegue
+# ══════════════════════════════════════════════════════════════════════════════
+
+Outputs:
+
+  ServerIP:
+    Description: IP publica del servidor (usar en DNS y GitHub Secrets)
+    Value: !Ref BackendEIP
+    Export:
+      Name: !Sub '${ProjectName}-server-ip'
+
+  DatabaseEndpoint:
+    Description: Endpoint del RDS PostgreSQL
+    Value: !GetAtt DatabaseInstance.Endpoint.Address
+
+  DatabaseJDBCUrl:
+    Description: URL JDBC completa para el backend
+    Value: !Sub 'jdbc:postgresql://${DatabaseInstance.Endpoint.Address}:5432/${DBName}'
+
+  ImagesBucketName:
+    Description: Nombre del bucket S3 para imagenes
+    Value: !Ref ImagesBucket
+
+  ImagesBucketURL:
+    Description: URL publica para acceder a las imagenes
+    Value: !Sub 'https://${ImagesBucket}.s3.${AWS::Region}.amazonaws.com'
+
+  SSHCommand:
+    Description: Comando para conectarte al servidor
+    Value: !Sub 'ssh -i tu-key.pem ubuntu@${BackendEIP}'
+
+  NextSteps:
+    Description: Pasos pendientes despues del despliegue
+    Value: !Sub |
+      1. Esperar 3-5 min a que EC2 termine de instalar (ver /var/log/user-data.log)
+      2. DNS en Cloudflare: A record 'api' -> ${BackendEIP}
+      3. Compilar y subir JAR: scp mstc-platform.jar ubuntu@${BackendEIP}:/opt/mstc/app/
+      4. SSH y arrancar: sudo systemctl start mstc-backend
+      5. HTTPS: sudo certbot --nginx -d ${DomainName}
+      6. Crear admin: psql -h ${DatabaseInstance.Endpoint.Address} -U ${DBUsername} -d ${DBName}
