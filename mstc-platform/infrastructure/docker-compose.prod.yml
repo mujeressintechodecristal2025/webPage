@@ -2,6 +2,8 @@
 # Docker Compose — Producción (EC2)
 # Solo corre el backend como contenedor.
 # PostgreSQL está en RDS (gestionado por AWS).
+# Logs: logback-spring.xml escribe JSON a /var/log/mstc/application.json
+#        → CloudWatch Agent (host) lee ese archivo y lo envía a CloudWatch.
 # ══════════════════════════════════════════════════════════════════════════════
 
 services:
@@ -17,8 +19,9 @@ services:
     volumes:
       # Claves JWT generadas por CloudFormation/user_data
       - /opt/mstc/keys:/app/keys:ro
-      # Logs persistentes
-      - /opt/mstc/logs:/app/logs
+      # Logs: el contenedor escribe en /var/log/mstc → host monta el mismo path
+      # CloudWatch Agent en el host lee /var/log/mstc/application.json
+      - /var/log/mstc:/var/log/mstc
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8080/actuator/health/liveness"]
       interval: 30s

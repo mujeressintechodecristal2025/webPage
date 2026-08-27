@@ -1,0 +1,101 @@
+name: Deploy Infraestructura → CloudFormation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infrastructure/cloudformation/**'
+      - 'infrastructure/cloudwatch/**'
+      - '.github/workflows/deploy-infra.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infra-deploy
+  cancel-in-progress: false       # Nunca cancelar un deploy de infra a medias
+
+env:
+  AWS_REGION: us-east-1
+  STACK_NAME: mstc-platform
+
+jobs:
+
+  deploy-stack:
+    name: Deploy CloudFormation Stack
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validar template CloudFormation
+        run: |
+          aws cloudformation validate-template \
+            --template-body file://infrastructure/cloudformation/mstc-stack.yml
+          echo "✅ Template válido"
+
+      - name: Deploy CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --template-file infrastructure/cloudformation/mstc-stack.yml \
+            --stack-name ${{ env.STACK_NAME }} \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset \
+            --parameter-overrides \
+              ProjectName=mstc \
+              DBPassword=${{ secrets.DB_PASSWORD }} \
+              DBUsername=${{ secrets.DB_USERNAME }} \
+              DBName=${{ secrets.DB_NAME }} \
+              SSHKeyName=${{ secrets.SSH_KEY_NAME }} \
+              AllowedSSHCidr=${{ secrets.ALLOWED_SSH_CIDR || '0.0.0.0/0' }} \
+              DomainName=${{ vars.DOMAIN_NAME || 'api.fundacionmujeressintechodecristal.org' }} \
+            --tags \
+              Key=Project,Value=mstc \
+              Key=Environment,Value=production \
+              Key=ManagedBy,Value=github-actions
+
+      - name: Mostrar outputs del stack
+        run: |
+          echo "══════════════════════════════════════════"
+          echo "  Stack Outputs"
+          echo "══════════════════════════════════════════"
+          aws cloudformation describe-stacks \
+            --stack-name ${{ env.STACK_NAME }} \
+            --query 'Stacks[0].Outputs[*].[OutputKey, OutputValue]' \
+            --output table
+
+      - name: Actualizar CloudWatch Agent en EC2
+        if: success()
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+        run: |
+          # Solo si el servidor ya existe y es accesible
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          scp -i ~/.ssh/deploy_key -o ConnectTimeout=10 \
+            infrastructure/cloudwatch/amazon-cloudwatch-agent.json \
+            $USER@$HOST:/tmp/amazon-cloudwatch-agent.json 2>/dev/null && \
+
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 $USER@$HOST << 'ENDSSH' || echo "⚠️ EC2 no accesible — CW Agent se configurará en próximo deploy de backend"
+            sudo cp /tmp/amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+              -a fetch-config -m ec2 -s \
+              -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+            echo "✅ CloudWatch Agent reconfigurado"
+          ENDSSH

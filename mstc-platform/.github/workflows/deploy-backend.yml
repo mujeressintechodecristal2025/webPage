@@ -98,12 +98,28 @@ jobs:
       - name: Checkout (para docker-compose.prod.yml)
         uses: actions/checkout@v4
 
+      - name: Configurar AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Configurar SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Asegurar CloudWatch Log Groups
+        run: |
+          # Crear log groups si no existen (idempotente)
+          aws logs create-log-group --log-group-name "/mstc/mstc/backend" 2>/dev/null || true
+          aws logs put-retention-policy --log-group-name "/mstc/mstc/backend" --retention-in-days 14
+          aws logs create-log-group --log-group-name "/mstc/mstc/nginx" 2>/dev/null || true
+          aws logs put-retention-policy --log-group-name "/mstc/mstc/nginx" --retention-in-days 7
+          echo "✅ CloudWatch Log Groups verificados"
 
       - name: Deploy al servidor
         env:
@@ -152,6 +168,17 @@ jobs:
             echo "❌ Backend no respondió en 120 segundos"
             docker logs mstc-backend --tail 50
             exit 1
+          ENDSSH
+
+      - name: Reiniciar CloudWatch Agent
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key $USER@$HOST << 'ENDSSH'
+            # Reiniciar agent para asegurar que tome el log file nuevo
+            sudo systemctl restart amazon-cloudwatch-agent 2>/dev/null || \
+              echo "⚠️ CloudWatch Agent no instalado (se instalará con el stack)"
           ENDSSH
 
       - name: Verificar health check público

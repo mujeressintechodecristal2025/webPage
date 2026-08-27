@@ -74,6 +74,9 @@ dependencies {
     // ── Resilience4j — Circuit Breaker / Retry ────────────────────────────
     implementation("io.github.resilience4j:resilience4j-spring-boot3:$resilience4jVersion")
 
+    // ── Logging estructurado JSON (CloudWatch) ────────────────────────────
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+
     // ── MapStruct — Mapeo de objetos ──────────────────────────────────────
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
     annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")

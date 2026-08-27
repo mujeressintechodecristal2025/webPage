@@ -39,13 +39,13 @@ spring:
       ddl-auto: none              # Flyway gestiona el schema — no validar
 
 # ── Logging ──────────────────────────────────────────────────────────────────
+# Niveles controlados por logback-spring.xml (perfil prod).
+# NO usar logging.file.name aquí — logback-spring.xml gestiona appenders.
 logging:
   level:
     org.mstc: INFO
     org.springframework.security: WARN
     org.hibernate.SQL: WARN
-  file:
-    name: /var/log/mstc/application.log
 
 # ── S3 AWS ───────────────────────────────────────────────────────────────────
 mstc:

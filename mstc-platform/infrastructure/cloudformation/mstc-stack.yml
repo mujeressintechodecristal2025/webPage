@@ -116,10 +116,12 @@ Resources:
 
   BackendInstance:
     Type: AWS::EC2::Instance
+    DependsOn: BackendInstanceProfile
     Properties:
       InstanceType: t3.micro
       ImageId: !FindInMap [RegionAMI, !Ref 'AWS::Region', AMI]
       KeyName: !Ref SSHKeyName
+      IamInstanceProfile: !Ref BackendInstanceProfile
       SecurityGroupIds:
         - !GetAtt BackendSecurityGroup.GroupId
       BlockDeviceMappings:
@@ -226,6 +228,80 @@ Resources:
           systemctl daemon-reload
           systemctl enable mstc-backend
 
+          # ── Instalar y configurar Amazon CloudWatch Agent ──────────────────
+          wget -q https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+          dpkg -i -E amazon-cloudwatch-agent.deb
+          rm -f amazon-cloudwatch-agent.deb
+
+          # Configuración del CloudWatch Agent (logs + métricas básicas)
+          cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json << 'CWAGENT'
+          {
+            "agent": {
+              "metrics_collection_interval": 60,
+              "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
+              "run_as_user": "root"
+            },
+            "logs": {
+              "logs_collected": {
+                "files": {
+                  "collect_list": [
+                    {
+                      "file_path": "/var/log/mstc/application.json",
+                      "log_group_name": "/mstc/mstc/backend",
+                      "log_stream_name": "{instance_id}/application",
+                      "timestamp_format": "%Y-%m-%dT%H:%M:%S",
+                      "multi_line_start_pattern": "{\"timestamp\"",
+                      "retention_in_days": 14
+                    },
+                    {
+                      "file_path": "/var/log/nginx/access.log",
+                      "log_group_name": "/mstc/mstc/nginx",
+                      "log_stream_name": "{instance_id}/access",
+                      "timestamp_format": "%d/%b/%Y:%H:%M:%S %z",
+                      "retention_in_days": 7
+                    },
+                    {
+                      "file_path": "/var/log/nginx/error.log",
+                      "log_group_name": "/mstc/mstc/nginx",
+                      "log_stream_name": "{instance_id}/error",
+                      "timestamp_format": "%Y/%m/%d %H:%M:%S",
+                      "retention_in_days": 7
+                    }
+                  ]
+                }
+              },
+              "log_stream_name": "{instance_id}/default",
+              "force_flush_interval": 15
+            },
+            "metrics": {
+              "namespace": "mstc/Backend",
+              "metrics_collected": {
+                "disk": {
+                  "measurement": ["used_percent"],
+                  "resources": ["/"],
+                  "metrics_collection_interval": 300
+                },
+                "mem": {
+                  "measurement": ["mem_used_percent"],
+                  "metrics_collection_interval": 300
+                }
+              },
+              "append_dimensions": {
+                "InstanceId": "${!aws:InstanceId}"
+              }
+            }
+          }
+          CWAGENT
+
+          # Iniciar CloudWatch Agent con la configuración
+          /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+            -a fetch-config \
+            -m ec2 \
+            -s \
+            -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+
+          systemctl enable amazon-cloudwatch-agent
+
           echo "=== MSTC: Configuracion completada ==="
           echo "Falta: subir JAR a /opt/mstc/app/mstc-platform.jar"
           echo "Falta: sudo systemctl start mstc-backend"
@@ -306,6 +382,81 @@ Resources:
             Principal: '*'
             Action: 's3:GetObject'
             Resource: !Sub '${ImagesBucket.Arn}/*'
+
+  # ── CloudWatch Logs: Log Group + IAM para envío de logs ──────────────────
+
+  BackendLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/mstc/${ProjectName}/backend'
+      RetentionInDays: 14
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-backend-logs'
+
+  NginxLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/mstc/${ProjectName}/nginx'
+      RetentionInDays: 7
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-nginx-logs'
+
+  BackendInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-ec2-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudWatchLogsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource:
+                  - !GetAtt BackendLogGroup.Arn
+                  - !Sub '${BackendLogGroup.Arn}:*'
+                  - !GetAtt NginxLogGroup.Arn
+                  - !Sub '${NginxLogGroup.Arn}:*'
+        - PolicyName: CloudWatchAgentPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    cloudwatch:namespace: !Sub '${ProjectName}/Backend'
+        - PolicyName: S3ImageUploadPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                Resource: !Sub '${ImagesBucket.Arn}/*'
+
+  BackendInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub '${ProjectName}-ec2-profile'
+      Roles:
+        - !Ref BackendInstanceRole
 
   # ── Custom Resource: obtener subnets por defecto ───────────────────────────
   # (Necesario porque CloudFormation no tiene un datasource nativo para subnets)
@@ -425,3 +576,11 @@ Outputs:
       4. SSH y arrancar: sudo systemctl start mstc-backend
       5. HTTPS: sudo certbot --nginx -d ${DomainName}
       6. Crear admin: psql -h ${DatabaseInstance.Endpoint.Address} -U ${DBUsername} -d ${DBName}
+
+  BackendLogGroupName:
+    Description: CloudWatch Log Group para logs del backend
+    Value: !Sub '/mstc/${ProjectName}/backend'
+
+  NginxLogGroupName:
+    Description: CloudWatch Log Group para logs de Nginx
+    Value: !Sub '/mstc/${ProjectName}/nginx'
