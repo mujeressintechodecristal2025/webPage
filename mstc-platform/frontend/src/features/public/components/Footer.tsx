@@ -132,6 +132,14 @@ export default function Footer() {
                   </button>
                 </li>
               ))}
+              <li>
+                <Link
+                  to="/blog"
+                  className="text-[13px] text-white/65 hover:text-white transition-colors font-light tracking-wide"
+                >
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
 

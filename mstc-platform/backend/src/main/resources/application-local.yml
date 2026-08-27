@@ -1,0 +1,92 @@
+# ============================================================
+# Configuración LOCAL — sin Docker
+# Usar con: ./gradlew.bat bootRun --args='--spring.profiles.active=local'
+#
+# Diferencias con el perfil dev:
+#  - Base de datos: H2 en memoria (no requiere PostgreSQL)
+#  - Redis/Valkey:  deshabilitado (no requiere Docker)
+#  - Mail:          modo consola (no requiere SMTP)
+#  - Storage:       deshabilitado (no requiere MinIO/S3)
+# ============================================================
+
+spring:
+
+  # ── H2 en memoria ───────────────────────────────────────────────────────
+  datasource:
+    url:      jdbc:h2:mem:mstcdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;NON_KEYWORDS=VALUE;MODE=PostgreSQL;DEFAULT_NULL_ORDERING=HIGH
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+    hikari:
+      maximum-pool-size: 3
+
+  # Seed de datos despues de que Hibernate crea el schema
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-local.sql
+      continue-on-error: true
+
+  # H2 console en http://localhost:8080/h2-console
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  # ── JPA — Hibernate crea el schema desde las entidades (sin Flyway) ────
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop        # Crea al arrancar, borra al parar
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        default_schema: PUBLIC
+
+  # Ejecutar data-local.sql DESPUES de que Hibernate cree el schema
+  defer-datasource-initialization: true
+
+  # ── Flyway DESHABILITADO en local — Hibernate genera el schema ──────────
+  flyway:
+    enabled: false
+
+  # ── Redis — conexión local (falla silenciosa si no hay servidor) ─────────
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+      timeout: 100ms
+      connect-timeout: 100ms
+
+  # ── Mail — modo consola (imprime en stdout, no envía) ───────────────────
+  mail:
+    host:     localhost
+    port:     25
+    username: ""
+    password: ""
+    properties:
+      mail.smtp.auth:               false
+      mail.smtp.starttls.enable:    false
+      mail.debug:                   false
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level:
+    org.mstc:                       DEBUG
+    org.springframework.security:   INFO
+    org.hibernate.SQL:              DEBUG
+    org.flywaydb:                   INFO
+    com.zaxxer.hikari:              WARN
+
+# ── Storage deshabilitado en local ───────────────────────────────────────────
+mstc:
+  storage:
+    endpoint:          http://localhost:9000
+    access-key:        local_key
+    secret-key:        local_secret
+    region:            us-east-1
+    path-style-access: true

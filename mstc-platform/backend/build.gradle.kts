@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     java
     id("org.springframework.boot")          version "3.3.2"
@@ -54,6 +52,7 @@ dependencies {
 
     // ── Base de Datos ──────────────────────────────────────────────────────
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("com.h2database:h2")                   // perfil local (sin Docker)
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 

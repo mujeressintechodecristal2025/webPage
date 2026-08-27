@@ -61,6 +61,55 @@ export interface ContactMessage {
   privacyConsent: boolean
 }
 
+// ============================================================
+// Tipos del módulo Blog
+// ============================================================
+
+/** Estado de publicación de un post */
+export type BlogStatus = 'DRAFT' | 'PUBLISHED'
+
+/** Post del blog — vista resumida para la lista */
+export interface BlogPostSummary {
+  id: string
+  slug: string
+  title: string
+  excerpt?: string
+  imageS3Key?: string
+  category?: string
+  tags: string[]
+  authorName?: string
+  publishedAt?: string
+}
+
+/** Post del blog — vista completa para el detalle */
+export interface BlogPostDetail extends BlogPostSummary {
+  body: string
+  updatedAt?: string
+}
+
+/** Post del blog — vista admin (incluye todos los estados y timestamps) */
+export interface BlogPostAdmin extends BlogPostDetail {
+  status: BlogStatus
+  createdAt?: string
+}
+
+/** Datos del formulario de creación/edición de post */
+export interface BlogPostFormData {
+  title: string
+  slug: string
+  excerpt: string
+  body: string
+  imageS3Key: string
+  category: string
+  tags: string[]
+  status: BlogStatus
+  authorName: string
+}
+
+// ============================================================
+// Tipos de autenticación y usuario
+// ============================================================
+
 /** Roles de usuario */
 export type UserRole = 'ADMIN' | 'DONOR'
 

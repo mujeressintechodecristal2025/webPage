@@ -1,0 +1,117 @@
+name: Deploy Backend → Oracle Cloud
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:  # Permite ejecución manual
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: true
+
+jobs:
+  # ── Job 1: Build y test ──────────────────────────────────────────────────────
+  build:
+    name: Build Spring Boot
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant execute permission to Gradlew
+        working-directory: backend
+        run: chmod +x gradlew
+
+      - name: Build JAR (sin tests — los tests corren en PR, no en deploy)
+        working-directory: backend
+        run: ./gradlew bootJar -x test --no-daemon
+        env:
+          APP_ENV: prod
+
+      - name: Verificar JAR generado
+        working-directory: backend
+        run: ls -lh build/libs/*.jar
+
+      - name: Upload JAR como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: backend/build/libs/*.jar
+          retention-days: 1
+
+  # ── Job 2: Deploy a Oracle Cloud via SSH ────────────────────────────────────
+  deploy:
+    name: Deploy to Oracle Cloud
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://api.fundacionmujeressintechodecristal.org
+
+    steps:
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: ./jar
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ORACLE_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.ORACLE_SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Copiar JAR al servidor
+        run: |
+          scp -i ~/.ssh/deploy_key \
+            ./jar/*.jar \
+            ${{ secrets.ORACLE_SSH_USER }}@${{ secrets.ORACLE_SSH_HOST }}:/opt/mstc/app/mstc-platform.jar.new
+
+      - name: Reiniciar servicio en el servidor
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            ${{ secrets.ORACLE_SSH_USER }}@${{ secrets.ORACLE_SSH_HOST }} \
+            'bash -s' << 'ENDSSH'
+              set -e
+
+              # Mover el nuevo JAR al lugar definitivo
+              mv /opt/mstc/app/mstc-platform.jar.new /opt/mstc/app/mstc-platform.jar
+
+              # Reiniciar el servicio systemd
+              sudo systemctl restart mstc-backend
+
+              # Esperar hasta 60s a que el health check responda
+              echo "Esperando que el backend arranque..."
+              for i in $(seq 1 12); do
+                if curl -sf http://localhost:8080/actuator/health/liveness > /dev/null 2>&1; then
+                  echo "Backend listo ✓"
+                  exit 0
+                fi
+                sleep 5
+              done
+
+              echo "ERROR: El backend no respondió en 60 segundos"
+              sudo systemctl status mstc-backend --no-pager
+              exit 1
+          ENDSSH
+
+      - name: Verificar health check público
+        run: |
+          sleep 5
+          curl -sf https://api.fundacionmujeressintechodecristal.org/actuator/health \
+            || echo "Advertencia: health check externo no respondió (puede ser lag de DNS)"
