@@ -99,6 +99,7 @@ export default function AdminBlogFormPage() {
             isLoading={mutation.isPending}
             serverError={serverError}
             mode={isEditMode ? 'edit' : 'create'}
+            postId={id}
           />
         </div>
       )}

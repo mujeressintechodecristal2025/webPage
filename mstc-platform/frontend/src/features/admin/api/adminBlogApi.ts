@@ -52,3 +52,34 @@ export const updateBlogPost = async (
 export const deleteBlogPost = async (id: string): Promise<void> => {
   await apiClient.delete(`/api/v1/admin/blog/${id}`)
 }
+
+/**
+ * Verifica si un slug está disponible.
+ * GET /api/v1/admin/blog/slug-available?slug=...&excludeId=...
+ */
+export const checkSlugAvailable = async (
+  slug: string,
+  excludeId?: string,
+): Promise<boolean> => {
+  const response = await apiClient.get<{ available: boolean }>(
+    '/api/v1/admin/blog/slug-available',
+    { params: { slug, ...(excludeId && { excludeId }) } },
+  )
+  return response.data.available
+}
+
+/**
+ * Sube una imagen al servidor y retorna su URL pública.
+ * POST /api/v1/admin/blog/images (multipart/form-data)
+ */
+export const uploadBlogImage = async (file: File): Promise<string> => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await apiClient.post<{ url: string }>(
+    '/api/v1/admin/blog/images',
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } },
+  )
+  return response.data.url
+}

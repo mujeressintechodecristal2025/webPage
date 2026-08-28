@@ -73,9 +73,9 @@ mstc:
       max-attempts: 5
       lockout-minutes: 15
   storage:
-    bucket-documents:    mstc-documents
-    bucket-certificates: mstc-certificates
-    bucket-images:       mstc-images
+    bucket-documents:    ${BUCKET_DOCUMENTS:mstc-documents}
+    bucket-certificates: ${BUCKET_CERTIFICATES:mstc-certificates}
+    bucket-images:       ${BUCKET_IMAGES:mstc-images}
   whatsapp:
     number: ${WHATSAPP_NUMBER:573188307155}
   foundation:

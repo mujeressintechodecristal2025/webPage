@@ -47,9 +47,9 @@ public class BlogPostJpaEntity {
     @Column(length = 100)
     private String category;
 
-    // Almacenado como CSV — compatible con PostgreSQL TEXT[] y H2 CLOB
+    // Almacenado como CSV vía StringListConverter (columna TEXT en PG, CLOB en H2)
     @Convert(converter = StringListConverter.class)
-    @Column(name = "tags")
+    @Column(name = "tags", columnDefinition = "TEXT")
     private List<String> tags;
 
     @Column(nullable = false, length = 20)

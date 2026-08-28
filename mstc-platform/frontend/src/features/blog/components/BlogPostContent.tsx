@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+import { useMemo } from 'react'
 import { cn } from '@/shared/utils/cn'
 
 interface BlogPostContentProps {
@@ -7,10 +9,27 @@ interface BlogPostContentProps {
 
 /**
  * Renderiza el contenido HTML de un post del blog.
- * El HTML proviene del administrador (contenido confiable, no user-generated).
- * Estilos aplicados para tipografía legible con la paleta del sitio.
+ * El HTML se sanitiza con DOMPurify antes de inyectarse para prevenir XSS,
+ * incluso si el contenido proviene de una cuenta admin comprometida.
  */
 export default function BlogPostContent({ html, className }: BlogPostContentProps) {
+  // Sanitizar el HTML — permite solo tags/atributos seguros de contenido editorial
+  const sanitizedHtml = useMemo(
+    () =>
+      DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: [
+          'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr',
+          'strong', 'b', 'em', 'i', 'u', 's', 'mark',
+          'ul', 'ol', 'li', 'blockquote',
+          'a', 'img', 'figure', 'figcaption',
+          'code', 'pre', 'span', 'div',
+        ],
+        ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'target', 'rel', 'class'],
+        ALLOW_DATA_ATTR: false,
+      }),
+    [html],
+  )
+
   return (
     <div
       className={cn(
@@ -43,7 +62,7 @@ export default function BlogPostContent({ html, className }: BlogPostContentProp
         '[&_em]:italic',
         className,
       )}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
     />
   )
 }

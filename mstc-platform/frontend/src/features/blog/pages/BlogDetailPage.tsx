@@ -1,11 +1,17 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Calendar, User, Tag } from 'lucide-react'
+import { ArrowLeft, Calendar, User, Tag, Clock } from 'lucide-react'
 import SEO from '@/shared/components/SEO'
 import BlogPostContent from '@/features/blog/components/BlogPostContent'
 import ImageLightbox from '@/features/blog/components/ImageLightbox'
+import ShareButtons from '@/features/blog/components/ShareButtons'
+import BlogCard from '@/features/blog/components/BlogCard'
 import { useBlogPost } from '@/features/blog/hooks/useBlogPost'
+import { useRelatedPosts } from '@/features/blog/hooks/useRelatedPosts'
+import { calculateReadingTime } from '@/features/blog/utils/readingTime'
 import type { ProblemDetail } from '@/shared/types'
+
+const SITE_URL = 'https://fundacionmujeressintechodecristal.org'
 
 // Skeleton del artículo durante la carga
 function ArticleSkeleton() {
@@ -33,9 +39,11 @@ function ArticleSkeleton() {
 export default function BlogDetailPage() {
   const { slug = '' } = useParams<{ slug: string }>()
   const { data: post, isLoading, isError, error } = useBlogPost(slug)
+  const { data: relatedPosts } = useRelatedPosts(slug, post?.category)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const is404 = isError && (error as ProblemDetail)?.status === 404
+  const readingTime = post?.body ? calculateReadingTime(post.body) : 0
 
   const formattedDate = post?.publishedAt
     ? new Intl.DateTimeFormat('es-CO', {
@@ -53,6 +61,15 @@ export default function BlogDetailPage() {
           title={post.title}
           description={post.excerpt ?? `Lee el artículo completo en el blog de la Fundación MSTC`}
           path={`/blog/${post.slug}`}
+          image={post.imageS3Key}
+          type="article"
+          article={{
+            publishedTime: post.publishedAt,
+            modifiedTime: post.updatedAt,
+            author: post.authorName,
+            section: post.category,
+            tags: post.tags,
+          }}
         />
       )}
       {!post && !isLoading && (
@@ -163,6 +180,12 @@ export default function BlogDetailPage() {
                     {formattedDate}
                   </time>
                 )}
+                {readingTime > 0 && (
+                  <span className="flex items-center gap-1.5">
+                    <Clock size={14} />
+                    {readingTime} min de lectura
+                  </span>
+                )}
                 {post.tags && post.tags.length > 0 && (
                   <span className="flex items-center gap-1.5 flex-wrap">
                     <Tag size={14} />
@@ -188,8 +211,8 @@ export default function BlogDetailPage() {
               {/* Contenido HTML */}
               <BlogPostContent html={post.body} />
 
-              {/* Separador y volver */}
-              <div className="mt-12 pt-8 border-t border-gray-200">
+              {/* Compartir + volver */}
+              <div className="mt-12 pt-8 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <Link
                   to="/blog"
                   className="inline-flex items-center gap-2 text-sm text-soft-grey hover:text-magenta transition-colors group"
@@ -197,7 +220,20 @@ export default function BlogDetailPage() {
                   <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
                   Volver al blog
                 </Link>
+                <ShareButtons url={`${SITE_URL}/blog/${post.slug}`} title={post.title} />
               </div>
+
+              {/* Posts relacionados */}
+              {relatedPosts && relatedPosts.length > 0 && (
+                <section className="mt-16 pt-10 border-t border-gray-200">
+                  <h2 className="font-serif text-2xl text-charcoal mb-6">También te puede interesar</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {relatedPosts.map((rp) => (
+                      <BlogCard key={rp.id} post={rp} />
+                    ))}
+                  </div>
+                </section>
+              )}
 
             </article>
           )}

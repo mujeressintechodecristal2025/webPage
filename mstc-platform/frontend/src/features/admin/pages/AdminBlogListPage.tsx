@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Pencil, Trash2, Eye, EyeOff, ChevronLeft, ChevronRight, Search, ExternalLink } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
 import { useAdminBlogPosts } from '@/features/admin/hooks/useAdminBlogPosts'
 import { useDeleteBlogPost, useUpdateBlogPost } from '@/features/admin/hooks/useAdminBlogMutations'
@@ -80,9 +80,22 @@ export default function AdminBlogListPage() {
   const [page, setPage]               = useState(0)
   const [postToDelete, setPostToDelete] = useState<BlogPostAdmin | null>(null)
   const [toast, setToast]             = useState<string | null>(null)
+  const [search, setSearch]           = useState('')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PUBLISHED' | 'DRAFT'>('ALL')
 
   const { data, isLoading } = useAdminBlogPosts(page)
   const deleteMutation      = useDeleteBlogPost()
+
+  // Filtrar los posts de la página actual por búsqueda y estado
+  const filteredPosts = (data?.content ?? []).filter((post) => {
+    const matchesSearch =
+      !search.trim() ||
+      post.title.toLowerCase().includes(search.toLowerCase()) ||
+      post.slug.toLowerCase().includes(search.toLowerCase()) ||
+      (post.category ?? '').toLowerCase().includes(search.toLowerCase())
+    const matchesStatus = statusFilter === 'ALL' || post.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -134,6 +147,37 @@ export default function AdminBlogListPage() {
         </Link>
       </div>
 
+      {/* Búsqueda y filtros */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-soft-grey" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por título, slug o categoría..."
+            className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm text-charcoal outline-none focus:border-magenta focus:ring-1 focus:ring-magenta/20"
+          />
+        </div>
+        <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+          {(['ALL', 'PUBLISHED', 'DRAFT'] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              className={cn(
+                'px-4 py-2.5 text-sm font-sans transition-colors',
+                statusFilter === s
+                  ? 'bg-magenta text-white'
+                  : 'bg-white text-soft-grey hover:bg-gray-50',
+              )}
+            >
+              {s === 'ALL' ? 'Todos' : s === 'PUBLISHED' ? 'Publicados' : 'Borradores'}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Tabla */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
         {isLoading ? (
@@ -172,14 +216,20 @@ export default function AdminBlogListPage() {
 
             {/* Filas */}
             <div className="divide-y divide-gray-100">
-              {data?.content.map((post) => (
-                <PostRow
-                  key={post.id}
-                  post={post}
-                  onDelete={() => setPostToDelete(post)}
-                  onToast={showToast}
-                />
-              ))}
+              {filteredPosts.length === 0 ? (
+                <div className="text-center py-12 text-soft-grey text-sm">
+                  No hay posts que coincidan con la búsqueda.
+                </div>
+              ) : (
+                filteredPosts.map((post) => (
+                  <PostRow
+                    key={post.id}
+                    post={post}
+                    onDelete={() => setPostToDelete(post)}
+                    onToast={showToast}
+                  />
+                ))
+              )}
             </div>
 
             {/* Paginación */}
@@ -298,6 +348,15 @@ function PostRow({ post, onDelete, onToast }: PostRowProps) {
             {post.status === 'PUBLISHED' ? 'Despublicar' : 'Publicar'}
           </span>
         </button>
+
+        {/* Previsualizar */}
+        <Link
+          to={`/admin/blog/${post.id}/preview`}
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-soft-grey hover:bg-gray-100 hover:text-charcoal transition-colors"
+        >
+          <ExternalLink size={13} />
+          <span className="hidden sm:inline">Ver</span>
+        </Link>
 
         {/* Editar */}
         <Link

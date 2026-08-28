@@ -19,8 +19,9 @@ const BlogDetailPage = lazy(() => import('@/features/blog/pages/BlogDetailPage')
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'))
 
 // ── Panel admin (lazy) ────────────────────────────────────────────────────────
-const AdminBlogListPage = lazy(() => import('@/features/admin/pages/AdminBlogListPage'))
-const AdminBlogFormPage = lazy(() => import('@/features/admin/pages/AdminBlogFormPage'))
+const AdminBlogListPage    = lazy(() => import('@/features/admin/pages/AdminBlogListPage'))
+const AdminBlogFormPage    = lazy(() => import('@/features/admin/pages/AdminBlogFormPage'))
+const AdminBlogPreviewPage = lazy(() => import('@/features/admin/pages/AdminBlogPreviewPage'))
 
 const basename = import.meta.env.BASE_URL || '/'
 
@@ -85,6 +86,9 @@ function App() {
           } />
           <Route path="blog/:id/editar" element={
             <Suspense fallback={<PageLoader />}><AdminBlogFormPage /></Suspense>
+          } />
+          <Route path="blog/:id/preview" element={
+            <Suspense fallback={<PageLoader />}><AdminBlogPreviewPage /></Suspense>
           } />
         </Route>
 

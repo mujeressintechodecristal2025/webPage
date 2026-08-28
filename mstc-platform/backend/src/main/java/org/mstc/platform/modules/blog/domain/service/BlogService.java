@@ -7,6 +7,7 @@ import org.mstc.platform.modules.blog.domain.model.BlogStatus;
 import org.mstc.platform.modules.blog.domain.port.in.*;
 import org.mstc.platform.modules.blog.domain.port.in.GetBlogPostByIdUseCase;
 import org.mstc.platform.modules.blog.domain.port.in.GetAllBlogPostsUseCase;
+import org.mstc.platform.modules.blog.domain.port.in.CheckSlugUseCase;
 import org.mstc.platform.modules.blog.domain.port.out.BlogPostRepository;
 import org.mstc.platform.shared.exception.BusinessConflictException;
 import org.mstc.platform.shared.exception.ResourceNotFoundException;
@@ -45,7 +46,8 @@ public class BlogService implements
         GetBlogPostByIdUseCase,
         CreateBlogPostUseCase,
         UpdateBlogPostUseCase,
-        DeleteBlogPostUseCase {
+        DeleteBlogPostUseCase,
+        CheckSlugUseCase {
 
     private final BlogPostRepository blogPostRepository;
 
@@ -150,7 +152,9 @@ public class BlogService implements
                 .tags(command.tags())
                 .status(command.status())
                 .authorId(existing.getAuthorId())
-                .authorName(existing.getAuthorName())
+                .authorName(command.authorName() != null && !command.authorName().isBlank()
+                        ? command.authorName()
+                        : existing.getAuthorName())
                 .publishedAt(publishedAt)
                 .createdAt(existing.getCreatedAt())
                 .updatedAt(Instant.now())
@@ -170,5 +174,16 @@ public class BlogService implements
         }
         blogPostRepository.deleteById(id);
         log.info("Post eliminado: id={}", id);
+    }
+
+    // ── Verificar disponibilidad de slug ──────────────────────────────────
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isSlugAvailable(String slug, UUID excludeId) {
+        if (slug == null || slug.isBlank()) return false;
+        return excludeId == null
+                ? !blogPostRepository.existsBySlug(slug)
+                : !blogPostRepository.existsBySlugAndIdNot(slug, excludeId);
     }
 }

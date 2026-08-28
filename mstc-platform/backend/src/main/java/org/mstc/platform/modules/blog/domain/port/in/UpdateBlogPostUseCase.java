@@ -21,7 +21,8 @@ public interface UpdateBlogPostUseCase {
             String       imageS3Key,
             String       category,
             List<String> tags,
-            BlogStatus   status
+            BlogStatus   status,
+            String       authorName
     ) {}
 
     /**

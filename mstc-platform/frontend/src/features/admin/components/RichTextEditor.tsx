@@ -2,12 +2,13 @@ import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   Bold, Italic, Heading2, Heading3, List, ListOrdered,
   Quote, Link as LinkIcon, Image as ImageIcon, Undo, Redo, Minus,
 } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
+import { uploadBlogImage } from '@/features/admin/api/adminBlogApi'
 
 interface RichTextEditorProps {
   value: string
@@ -65,6 +66,8 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
 // ── Barra de herramientas ─────────────────────────────────────────────────────
 
 function Toolbar({ editor }: { editor: Editor }) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const addLink = () => {
     const url = window.prompt('URL del enlace:')
     if (url) {
@@ -72,10 +75,17 @@ function Toolbar({ editor }: { editor: Editor }) {
     }
   }
 
-  const addImage = () => {
-    const url = window.prompt('URL de la imagen:')
-    if (url) {
+  // Subir imagen al servidor e insertarla en el contenido
+  const handleImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const url = await uploadBlogImage(file)
       editor.chain().focus().setImage({ src: url }).run()
+    } catch {
+      window.alert('No se pudo subir la imagen. Verifica el formato (JPG, PNG, WEBP, GIF) y el tamaño (máx 5MB).')
+    } finally {
+      e.target.value = ''
     }
   }
 
@@ -147,9 +157,16 @@ function Toolbar({ editor }: { editor: Editor }) {
         <LinkIcon size={16} />
       </ToolbarButton>
 
-      <ToolbarButton onClick={addImage} title="Insertar imagen">
+      <ToolbarButton onClick={() => fileInputRef.current?.click()} title="Insertar imagen">
         <ImageIcon size={16} />
       </ToolbarButton>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        onChange={handleImageFile}
+        className="hidden"
+      />
 
       <ToolbarButton
         onClick={() => editor.chain().focus().setHorizontalRule().run()}

@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { X, Eye } from 'lucide-react'
+import { X, Eye, Upload } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
 import RichTextEditor from '@/features/admin/components/RichTextEditor'
+import { uploadBlogImage, checkSlugAvailable } from '@/features/admin/api/adminBlogApi'
+import { useDraftAutosave } from '@/features/admin/hooks/useDraftAutosave'
 import type { BlogPostFormData, BlogStatus } from '@/shared/types'
 
 // ── Schema de validación ──────────────────────────────────────────────────────
@@ -48,6 +50,7 @@ interface BlogPostFormProps {
   isLoading?: boolean
   serverError?: string | null
   mode?: 'create' | 'edit'
+  postId?: string
 }
 
 // ── Componente ────────────────────────────────────────────────────────────────
@@ -58,6 +61,7 @@ export default function BlogPostForm({
   isLoading = false,
   serverError,
   mode = 'create',
+  postId,
 }: BlogPostFormProps) {
   // Controla si el slug fue editado manualmente (para no sobreescribirlo)
   const slugManuallyEdited = useRef(false)
@@ -65,6 +69,9 @@ export default function BlogPostForm({
   // Estado para input de tags
   const [tagInput, setTagInput] = useState('')
   const [imagePreviewOk, setImagePreviewOk] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
 
   const {
     register,
@@ -93,6 +100,39 @@ export default function BlogPostForm({
   const statusValue   = watch('status')
   const imageValue    = watch('imageS3Key')
   const bodyValue     = watch('body')
+  const allValues     = watch()
+
+  // Auto-guardado de borrador en localStorage (evita pérdida al expirar sesión)
+  const draftKey = postId ?? 'new'
+  const { savedAt, loadDraft, getDraftInfo, clearDraft } = useDraftAutosave(
+    draftKey,
+    allValues as BlogPostFormData,
+  )
+  const [showDraftBanner, setShowDraftBanner] = useState(false)
+
+  // Al montar, verificar si hay un borrador guardado más reciente
+  useEffect(() => {
+    const info = getDraftInfo()
+    if (info.exists && mode === 'create') {
+      setShowDraftBanner(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const restoreDraft = () => {
+    const draft = loadDraft()
+    if (draft) {
+      (Object.keys(draft) as (keyof BlogPostFormData)[]).forEach((k) => {
+        setValue(k as any, draft[k] as any, { shouldValidate: true })
+      })
+    }
+    setShowDraftBanner(false)
+  }
+
+  const discardDraft = () => {
+    clearDraft()
+    setShowDraftBanner(false)
+  }
 
   // Registrar 'body' manualmente (TipTap no es un input nativo)
   useEffect(() => {
@@ -105,6 +145,32 @@ export default function BlogPostForm({
       setValue('slug', generateSlug(titleValue), { shouldValidate: true })
     }
   }, [titleValue, mode, setValue])
+
+  // Verificar disponibilidad del slug (debounce 500ms)
+  useEffect(() => {
+    const slug = slugValue?.trim()
+    // Solo verificar si el slug es válido según el patrón
+    if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      setSlugStatus('idle')
+      return
+    }
+    // En edición, si no cambió el slug original, está disponible
+    if (mode === 'edit' && slug === defaultValues?.slug) {
+      setSlugStatus('available')
+      return
+    }
+    setSlugStatus('checking')
+    const timer = setTimeout(async () => {
+      try {
+        const available = await checkSlugAvailable(slug, postId)
+        setSlugStatus(available ? 'available' : 'taken')
+      } catch {
+        setSlugStatus('idle')
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slugValue, mode, postId])
 
   // Validar preview de imagen
   useEffect(() => {
@@ -136,7 +202,25 @@ export default function BlogPostForm({
     setValue('tags', tagsValue.filter((t) => t !== tag))
   }
 
+  // Subir imagen de portada al servidor
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadError(null)
+    setUploading(true)
+    try {
+      const url = await uploadBlogImage(file)
+      setValue('imageS3Key', url, { shouldValidate: true })
+    } catch (err: any) {
+      setUploadError(err?.detail ?? 'No se pudo subir la imagen. Intenta de nuevo.')
+    } finally {
+      setUploading(false)
+      e.target.value = '' // permitir re-subir el mismo archivo
+    }
+  }
+
   const handleFormSubmit = (values: FormValues) => {
+    clearDraft() // limpiar borrador al guardar exitosamente
     onSubmit({
       ...values,
       excerpt:    values.excerpt    ?? '',
@@ -148,6 +232,38 @@ export default function BlogPostForm({
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6" noValidate>
+
+      {/* Banner de borrador recuperable */}
+      {showDraftBanner && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-sm text-amber-800">
+            Tienes un borrador sin guardar de una sesión anterior. ¿Deseas recuperarlo?
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={restoreDraft}
+              className="px-3 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-medium hover:bg-amber-700 transition-colors"
+            >
+              Recuperar
+            </button>
+            <button
+              type="button"
+              onClick={discardDraft}
+              className="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 text-xs font-medium hover:bg-amber-100 transition-colors"
+            >
+              Descartar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Indicador de auto-guardado */}
+      {savedAt && !showDraftBanner && (
+        <p className="text-xs text-soft-grey text-right">
+          Borrador guardado automáticamente {savedAt.toLocaleTimeString('es-CO')}
+        </p>
+      )}
 
       {/* Error del servidor */}
       {serverError && (
@@ -185,6 +301,16 @@ export default function BlogPostForm({
             URL: <span className="text-magenta-dark">fundacion.org/blog/<strong>{slugValue}</strong></span>
           </p>
         )}
+        {/* Estado de disponibilidad del slug */}
+        {slugStatus === 'checking' && (
+          <p className="mt-1 text-xs text-soft-grey">Verificando disponibilidad...</p>
+        )}
+        {slugStatus === 'available' && (
+          <p className="mt-1 text-xs text-emerald-600">✓ Slug disponible</p>
+        )}
+        {slugStatus === 'taken' && (
+          <p className="mt-1 text-xs text-red-600">✗ Ya existe un post con este slug. Elige otro.</p>
+        )}
         {errors.slug && <p className={errorClass}>{errors.slug.message}</p>}
       </div>
 
@@ -212,21 +338,57 @@ export default function BlogPostForm({
         </p>
       </div>
 
-      {/* Imagen */}
+      {/* Imagen de portada */}
       <div>
-        <label className={labelClass}>URL de imagen <span className={optionalClass}>(opcional)</span></label>
+        <label className={labelClass}>Imagen de portada <span className={optionalClass}>(opcional)</span></label>
+
+        {/* Botón de subida directa */}
+        <div className="flex items-center gap-3 mb-2">
+          <label className={cn(
+            'flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm cursor-pointer transition-colors',
+            uploading ? 'opacity-60 cursor-wait' : 'hover:border-magenta hover:text-magenta text-charcoal',
+          )}>
+            {uploading ? (
+              <>
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                Subiendo...
+              </>
+            ) : (
+              <>
+                <Upload size={15} />
+                Subir imagen
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleImageUpload}
+              disabled={uploading}
+              className="hidden"
+            />
+          </label>
+          <span className="text-xs text-soft-grey">o pega una URL abajo</span>
+        </div>
+
+        {/* Campo URL (manual o auto-completado por la subida) */}
         <input
           {...register('imageS3Key')}
           type="url"
-          placeholder="https://pub-xxx.r2.dev/imagen.jpg"
+          placeholder="https://...imagen.jpg"
           className={inputClass(false)}
         />
         <p className="mt-1 text-xs text-soft-grey">
-          Sube la imagen a Cloudflare R2 y pega aquí la URL pública.
+          Formatos: JPG, PNG, WEBP, GIF. Tamaño máximo: 5 MB.
         </p>
+        {uploadError && (
+          <p className="mt-1 text-xs text-red-600">{uploadError}</p>
+        )}
         {imageValue && imagePreviewOk && (
-          <div className="mt-3 rounded-xl overflow-hidden border border-gray-200 aspect-video max-w-sm">
-            <img src={imageValue} alt="Preview" className="w-full h-full object-cover" />
+          <div className="mt-3 rounded-xl overflow-hidden border border-gray-200 aspect-video max-w-sm bg-gray-100">
+            <img src={imageValue} alt="Preview" className="w-full h-full object-contain" />
           </div>
         )}
         {imageValue && !imagePreviewOk && (

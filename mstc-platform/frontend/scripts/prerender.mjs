@@ -14,8 +14,8 @@ import { createServer } from 'http'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DIST = resolve(__dirname, '../dist')
 
-// Rutas públicas a pre-renderizar
-const ROUTES = [
+// Rutas estáticas a pre-renderizar
+const STATIC_ROUTES = [
   '/',
   '/galeria',
   '/transparencia',
@@ -24,6 +24,59 @@ const ROUTES = [
 ]
 
 const PORT = 4173
+const BASE_URL = 'https://fundacionmujeressintechodecristal.org'
+const API_URL = process.env.VITE_API_URL || 'https://api.fundacionmujeressintechodecristal.org'
+
+/**
+ * Obtiene los slugs de todos los posts publicados desde el API.
+ * Si el API no responde, continúa solo con las rutas estáticas.
+ */
+async function fetchBlogSlugs() {
+  const slugs = []
+  try {
+    let page = 0
+    let totalPages = 1
+    while (page < totalPages) {
+      const res = await fetch(`${API_URL}/api/v1/blog?page=${page}&size=50`)
+      if (!res.ok) break
+      const data = await res.json()
+      totalPages = data.totalPages || 1
+      for (const post of data.content || []) {
+        if (post.slug) slugs.push(post.slug)
+      }
+      page++
+    }
+    console.log(`  📝 ${slugs.length} posts del blog encontrados`)
+  } catch (err) {
+    console.warn(`  ⚠️  No se pudo consultar el API del blog (${err.message}). Solo rutas estáticas.`)
+  }
+  return slugs
+}
+
+/**
+ * Genera sitemap.xml con todas las rutas.
+ */
+function generateSitemap(routes) {
+  const today = new Date().toISOString().split('T')[0]
+  const urls = routes
+    .map(
+      (route) => `  <url>
+    <loc>${BASE_URL}${route}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${route.startsWith('/blog/') ? 'monthly' : 'weekly'}</changefreq>
+    <priority>${route === '/' ? '1.0' : route.startsWith('/blog') ? '0.8' : '0.6'}</priority>
+  </url>`,
+    )
+    .join('\n')
+
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`
+
+  writeFileSync(resolve(DIST, 'sitemap.xml'), sitemap, 'utf-8')
+  console.log(`  🗺️  sitemap.xml generado con ${routes.length} URLs`)
+}
 
 /**
  * Servidor estático simple para servir el build
@@ -73,6 +126,14 @@ async function prerender() {
     console.error('❌ No se encontró dist/index.html. Ejecuta "npm run build:only" primero.')
     process.exit(1)
   }
+
+  // Obtener slugs del blog y armar la lista completa de rutas
+  const blogSlugs = await fetchBlogSlugs()
+  const blogRoutes = blogSlugs.map((slug) => `/blog/${slug}`)
+  const ROUTES = [...STATIC_ROUTES, ...blogRoutes]
+
+  // Generar sitemap con todas las rutas
+  generateSitemap(ROUTES)
 
   const server = await startServer()
 

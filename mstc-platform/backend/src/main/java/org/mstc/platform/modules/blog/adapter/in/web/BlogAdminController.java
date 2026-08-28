@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.mstc.platform.modules.blog.domain.model.BlogPost;
 import org.mstc.platform.modules.blog.domain.model.BlogStatus;
+import org.mstc.platform.modules.blog.domain.port.in.CheckSlugUseCase;
 import org.mstc.platform.modules.blog.domain.port.in.CreateBlogPostUseCase;
 import org.mstc.platform.modules.blog.domain.port.in.DeleteBlogPostUseCase;
 import org.mstc.platform.modules.blog.domain.port.in.GetAllBlogPostsUseCase;
@@ -44,6 +45,7 @@ public class BlogAdminController {
     private final CreateBlogPostUseCase  createBlogPostUseCase;
     private final UpdateBlogPostUseCase  updateBlogPostUseCase;
     private final DeleteBlogPostUseCase  deleteBlogPostUseCase;
+    private final CheckSlugUseCase       checkSlugUseCase;
 
     // ── GET /api/v1/admin/blog ────────────────────────────────────────────
 
@@ -119,7 +121,8 @@ public class BlogAdminController {
                         request.imageS3Key(),
                         request.category(),
                         request.tags() != null ? request.tags() : List.of(),
-                        request.status() != null ? request.status() : BlogStatus.DRAFT
+                        request.status() != null ? request.status() : BlogStatus.DRAFT,
+                        request.authorName()
                 )
         );
 
@@ -133,6 +136,18 @@ public class BlogAdminController {
         deleteBlogPostUseCase.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    // ── GET /api/v1/admin/blog/slug-available ─────────────────────────────
+
+    @GetMapping("/slug-available")
+    public ResponseEntity<SlugAvailableResponse> checkSlug(
+            @RequestParam String slug,
+            @RequestParam(required = false) UUID excludeId) {
+        boolean available = checkSlugUseCase.isSlugAvailable(slug, excludeId);
+        return ResponseEntity.ok(new SlugAvailableResponse(available));
+    }
+
+    record SlugAvailableResponse(boolean available) {}
 
     // ── Mapper ────────────────────────────────────────────────────────────
 
@@ -196,7 +211,9 @@ public class BlogAdminController {
             List<String> tags,
 
             @NotNull(message = "El estado es obligatorio")
-            BlogStatus status
+            BlogStatus status,
+
+            String authorName
     ) {}
 
     // ── DTOs de respuesta ─────────────────────────────────────────────────
