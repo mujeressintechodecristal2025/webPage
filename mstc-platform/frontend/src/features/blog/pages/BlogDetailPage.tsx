@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Calendar, User, Tag } from 'lucide-react'
 import SEO from '@/shared/components/SEO'
 import BlogPostContent from '@/features/blog/components/BlogPostContent'
+import ImageLightbox from '@/features/blog/components/ImageLightbox'
 import { useBlogPost } from '@/features/blog/hooks/useBlogPost'
 import type { ProblemDetail } from '@/shared/types'
 
@@ -31,6 +33,7 @@ function ArticleSkeleton() {
 export default function BlogDetailPage() {
   const { slug = '' } = useParams<{ slug: string }>()
   const { data: post, isLoading, isError, error } = useBlogPost(slug)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const is404 = isError && (error as ProblemDetail)?.status === 404
 
@@ -108,15 +111,30 @@ export default function BlogDetailPage() {
           {post && (
             <article>
 
-              {/* Imagen de portada */}
+              {/* Imagen de portada — se ajusta completa al recuadro; clic abre lightbox */}
               {post.imageS3Key && (
-                <div className="aspect-video rounded-2xl overflow-hidden mb-8 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setLightboxOpen(true)}
+                  className="group relative block w-full aspect-video rounded-2xl overflow-hidden mb-8 shadow-sm bg-gray-100 cursor-zoom-in"
+                  aria-label="Ampliar imagen"
+                >
                   <img
                     src={post.imageS3Key}
                     alt={post.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
-                </div>
+                  <span className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                </button>
+              )}
+
+              {/* Lightbox */}
+              {lightboxOpen && post.imageS3Key && (
+                <ImageLightbox
+                  src={post.imageS3Key}
+                  alt={post.title}
+                  onClose={() => setLightboxOpen(false)}
+                />
               )}
 
               {/* Categoría */}

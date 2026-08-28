@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { X, Eye } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
+import RichTextEditor from '@/features/admin/components/RichTextEditor'
 import type { BlogPostFormData, BlogStatus } from '@/shared/types'
 
 // ── Schema de validación ──────────────────────────────────────────────────────
@@ -91,6 +92,12 @@ export default function BlogPostForm({
   const tagsValue     = watch('tags')
   const statusValue   = watch('status')
   const imageValue    = watch('imageS3Key')
+  const bodyValue     = watch('body')
+
+  // Registrar 'body' manualmente (TipTap no es un input nativo)
+  useEffect(() => {
+    register('body')
+  }, [register])
 
   // Auto-generar slug desde el título (si no fue editado manualmente)
   useEffect(() => {
@@ -192,16 +199,17 @@ export default function BlogPostForm({
         />
       </div>
 
-      {/* Contenido */}
+      {/* Contenido — editor visual WYSIWYG */}
       <div>
         <label className={labelClass}>Contenido *</label>
-        <textarea
-          {...register('body')}
-          rows={14}
-          placeholder="Escribe aquí el contenido del post. Puedes usar HTML básico: <h2>, <p>, <strong>, <ul>, <img>, etc."
-          className={cn(inputClass(!!errors.body), 'font-mono text-sm resize-y')}
+        <RichTextEditor
+          value={bodyValue}
+          onChange={(html) => setValue('body', html, { shouldValidate: true })}
         />
         {errors.body && <p className={errorClass}>{errors.body.message}</p>}
+        <p className="mt-1 text-xs text-soft-grey">
+          Usa la barra de herramientas para dar formato: negrita, títulos, listas, enlaces e imágenes.
+        </p>
       </div>
 
       {/* Imagen */}
