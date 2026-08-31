@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -63,15 +63,13 @@ export default function BlogPostForm({
   mode = 'create',
   postId,
 }: BlogPostFormProps) {
-  // Controla si el slug fue editado manualmente (para no sobreescribirlo)
-  const slugManuallyEdited = useRef(false)
-
   // Estado para input de tags
   const [tagInput, setTagInput] = useState('')
   const [imagePreviewOk, setImagePreviewOk] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
+  const [editingSlug, setEditingSlug] = useState(false)
 
   const {
     register,
@@ -139,9 +137,10 @@ export default function BlogPostForm({
     register('body')
   }, [register])
 
-  // Auto-generar slug desde el título (si no fue editado manualmente)
+  // Auto-generar slug desde el título automáticamente
+  // En creación: siempre. En edición: solo si el título cambia (para no romper URLs existentes se avisa).
   useEffect(() => {
-    if (!slugManuallyEdited.current && mode === 'create') {
+    if (mode === 'create') {
       setValue('slug', generateSlug(titleValue), { shouldValidate: true })
     }
   }, [titleValue, mode, setValue])
@@ -286,30 +285,48 @@ export default function BlogPostForm({
 
       {/* Slug */}
       <div>
-        <label className={labelClass}>Slug (URL) *</label>
-        <input
-          {...register('slug', {
-            onChange: () => { slugManuallyEdited.current = true },
-          })}
-          type="text"
-          placeholder="url-del-post"
-          className={inputClass(!!errors.slug)}
-        />
-        {slugValue && (
-          <p className="mt-1 text-xs text-soft-grey flex items-center gap-1">
-            <Eye size={12} />
-            URL: <span className="text-magenta-dark">fundacion.org/blog/<strong>{slugValue}</strong></span>
-          </p>
+        <label className={labelClass}>Dirección web (se genera automáticamente)</label>
+
+        {/* Vista de la URL generada — solo lectura por defecto */}
+        <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm">
+          <Eye size={14} className="text-soft-grey shrink-0" />
+          <span className="text-soft-grey truncate">
+            fundacion.org/blog/<span className="text-magenta-dark font-medium">{slugValue || 'titulo-del-post'}</span>
+          </span>
+          {mode === 'edit' && (
+            <button
+              type="button"
+              onClick={() => setEditingSlug((v) => !v)}
+              className="ml-auto text-xs text-magenta hover:underline shrink-0"
+            >
+              {editingSlug ? 'Cancelar' : 'Editar'}
+            </button>
+          )}
+        </div>
+
+        {/* Campo editable — solo si el admin lo activa en edición */}
+        {editingSlug && (
+          <div className="mt-2">
+            <input
+              {...register('slug')}
+              type="text"
+              placeholder="url-del-post"
+              className={inputClass(!!errors.slug)}
+            />
+            <p className="mt-1 text-xs text-amber-600">
+              Cambiar la dirección hará que los enlaces antiguos a este post dejen de funcionar.
+            </p>
+          </div>
         )}
+
         {/* Estado de disponibilidad del slug */}
         {slugStatus === 'checking' && (
           <p className="mt-1 text-xs text-soft-grey">Verificando disponibilidad...</p>
         )}
-        {slugStatus === 'available' && (
-          <p className="mt-1 text-xs text-emerald-600">✓ Slug disponible</p>
-        )}
         {slugStatus === 'taken' && (
-          <p className="mt-1 text-xs text-red-600">✗ Ya existe un post con este slug. Elige otro.</p>
+          <p className="mt-1 text-xs text-red-600">
+            Ya existe un post con esta dirección. Cambia un poco el título.
+          </p>
         )}
         {errors.slug && <p className={errorClass}>{errors.slug.message}</p>}
       </div>
