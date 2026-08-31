@@ -171,6 +171,9 @@ Resources:
               listen 80;
               server_name ${DomainName};
 
+              # Permitir subida de imagenes hasta 10MB
+              client_max_body_size 10M;
+
               location / {
                   proxy_pass http://localhost:8080;
                   proxy_set_header Host $host;
