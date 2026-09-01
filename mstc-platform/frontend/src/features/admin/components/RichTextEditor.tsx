@@ -83,7 +83,7 @@ function Toolbar({ editor }: { editor: Editor }) {
       const url = await uploadBlogImage(file)
       editor.chain().focus().setImage({ src: url }).run()
     } catch {
-      window.alert('No se pudo subir la imagen. Verifica el formato (JPG, PNG, WEBP, GIF) y el tamaño (máx 5MB).')
+      window.alert('No se pudo subir la imagen. Verifica el formato (JPG, PNG, WEBP, GIF) y el tamaño (máx 10MB).')
     } finally {
       e.target.value = ''
     }

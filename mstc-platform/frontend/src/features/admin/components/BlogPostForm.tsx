@@ -398,7 +398,7 @@ export default function BlogPostForm({
           className={inputClass(false)}
         />
         <p className="mt-1 text-xs text-soft-grey">
-          Formatos: JPG, PNG, WEBP, GIF. Tamaño máximo: 5 MB.
+          Formatos: JPG, PNG, WEBP, GIF. Tamaño máximo: 10 MB.
         </p>
         {uploadError && (
           <p className="mt-1 text-xs text-red-600">{uploadError}</p>
