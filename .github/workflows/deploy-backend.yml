@@ -201,49 +201,51 @@ jobs:
           EC2_IP: ${{ needs.infrastructure.outputs.ec2_ip }}
           USER: ${{ secrets.EC2_USER }}
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 $USER@$EC2_IP << ENDSSH
-            set -e
+          # Generar script de deploy remoto (evita problemas de heredoc indentado)
+          cat > deploy-remote.sh << 'SCRIPT'
+          set -e
+          IMAGE="__IMAGE__"
+          REGION="us-east-1"
 
-            echo "══════════════════════════════════════════"
-            echo "  Deploying: $IMAGE"
-            echo "══════════════════════════════════════════"
+          echo "Deploying: $IMAGE"
 
-            # Login a ECR
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} | \
-              docker login --username AWS --password-stdin \
-              \$(echo "$IMAGE" | cut -d/ -f1)
+          # Login a ECR
+          aws ecr get-login-password --region "$REGION" | \
+            docker login --username AWS --password-stdin "$(echo "$IMAGE" | cut -d/ -f1)"
 
-            # Pull nueva imagen
-            docker pull "$IMAGE"
+          docker pull "$IMAGE"
+          docker stop mstc-backend 2>/dev/null || true
+          docker rm mstc-backend 2>/dev/null || true
 
-            # Parar contenedor actual (si existe)
-            docker stop mstc-backend 2>/dev/null || true
-            docker rm mstc-backend 2>/dev/null || true
+          docker run -d --name mstc-backend \
+            --restart unless-stopped \
+            -p 8080:8080 \
+            --memory=512m \
+            --env-file /opt/mstc/app/.env \
+            -v /opt/mstc/keys:/app/keys:ro \
+            -e JAVA_OPTS="-Xmx384m -Xms256m -XX:+UseG1GC" \
+            "$IMAGE"
 
-            # Arrancar con memoria limitada (t3.micro = 1GB total)
-            docker run -d --name mstc-backend \
-              --restart unless-stopped \
-              -p 8080:8080 \
-              --memory=512m \
-              --env-file /opt/mstc/app/.env \
-              -v /opt/mstc/keys:/app/keys:ro \
-              -e JAVA_OPTS="-Xmx384m -Xms256m -XX:+UseG1GC" \
-              "$IMAGE"
+          echo "Esperando que el backend arranque..."
+          for i in $(seq 1 24); do
+            if curl -sf http://localhost:8080/actuator/health/liveness > /dev/null 2>&1; then
+              echo "Backend listo (intento $i)"
+              exit 0
+            fi
+            sleep 5
+          done
 
-            # Esperar a que el health check pase
-            echo "Esperando que el backend arranque..."
-            for i in \$(seq 1 24); do
-              if curl -sf http://localhost:8080/actuator/health/liveness > /dev/null 2>&1; then
-                echo "✅ Backend listo (intento \$i)"
-                exit 0
-              fi
-              sleep 5
-            done
+          echo "Backend no respondio en 120 segundos"
+          docker logs mstc-backend --tail 50
+          exit 1
+          SCRIPT
 
-            echo "❌ Backend no respondió en 120 segundos"
-            docker logs mstc-backend --tail 50
-            exit 1
-          ENDSSH
+          # Inyectar la imagen real en el script
+          sed -i "s|__IMAGE__|$IMAGE|g" deploy-remote.sh
+
+          # Copiar y ejecutar en el servidor
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no deploy-remote.sh $USER@$EC2_IP:/tmp/deploy-remote.sh
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 $USER@$EC2_IP "bash /tmp/deploy-remote.sh"
 
       - name: Verificar health check público
         if: success()
