@@ -115,9 +115,55 @@ public class JwtService {
         }
     }
 
+    /**
+     * Carga un par de claves RSA desde archivos PEM en disco.
+     * Espera la clave privada en privateKeyPath y la pública en publicKeyPath.
+     * Soporta rutas con prefijo "classpath:" o rutas absolutas del filesystem.
+     */
     private RSAKey loadKeyFromPath(String path) throws Exception {
-        // Implementación simplificada — en producción leer el PEM del filesystem
-        throw new UnsupportedOperationException("Carga de PEM no implementada en dev");
+        byte[] privateBytes = readPemBytes(jwtProperties.privateKeyPath());
+        byte[] publicBytes  = readPemBytes(jwtProperties.publicKeyPath());
+
+        // Parsear clave privada (PKCS#8)
+        String privatePem = new String(privateBytes)
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replace("-----BEGIN RSA PRIVATE KEY-----", "")
+                .replace("-----END RSA PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] privateDer = java.util.Base64.getDecoder().decode(privatePem);
+
+        java.security.KeyFactory kf = java.security.KeyFactory.getInstance("RSA");
+        java.security.interfaces.RSAPrivateKey privateKey =
+                (java.security.interfaces.RSAPrivateKey) kf.generatePrivate(
+                        new java.security.spec.PKCS8EncodedKeySpec(privateDer));
+
+        // Parsear clave pública (X.509)
+        String publicPem = new String(publicBytes)
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] publicDer = java.util.Base64.getDecoder().decode(publicPem);
+        java.security.interfaces.RSAPublicKey publicKey =
+                (java.security.interfaces.RSAPublicKey) kf.generatePublic(
+                        new java.security.spec.X509EncodedKeySpec(publicDer));
+
+        return new RSAKey.Builder(publicKey)
+                .privateKey(privateKey)
+                .keyID("mstc-jwt-key")
+                .build();
+    }
+
+    /** Lee los bytes de un PEM desde classpath o filesystem. */
+    private byte[] readPemBytes(String path) throws Exception {
+        if (path.startsWith("classpath:")) {
+            String resource = path.substring("classpath:".length());
+            try (var in = getClass().getClassLoader().getResourceAsStream(resource)) {
+                if (in == null) throw new java.io.FileNotFoundException("Recurso no encontrado: " + resource);
+                return in.readAllBytes();
+            }
+        }
+        return java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(path));
     }
 
     public record JwtClaims(String userId, String email, UserRole role) {}
