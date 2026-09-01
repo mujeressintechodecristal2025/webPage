@@ -78,3 +78,6 @@ desktop.ini
 
 # Gradle build artifacts
 backend/bin/
+
+# Imágenes subidas en local (perfil local)
+backend/uploads/

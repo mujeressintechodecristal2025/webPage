@@ -85,6 +85,9 @@ public class SecurityConfig {
                 // Actuator health (público)
                 .requestMatchers("/actuator/health/**").permitAll()
 
+                // Imágenes servidas localmente (perfil local)
+                .requestMatchers("/uploads/**").permitAll()
+
                 // ── Endpoints de donantes ───────────────────────────────
                 .requestMatchers("/api/v1/donors/**").hasRole("DONOR")
 

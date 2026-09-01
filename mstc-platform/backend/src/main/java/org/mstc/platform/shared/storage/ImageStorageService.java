@@ -15,18 +15,18 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Servicio de subida de imágenes a S3.
+ * Servicio de subida de imágenes a S3 (perfiles dev/prod).
  * Valida tipo y tamaño, genera una key única y retorna la URL pública.
  */
 @Slf4j
 @Service
 @Profile("!local")
 @RequiredArgsConstructor
-public class ImageStorageService {
+public class ImageStorageService implements ImageUploader {
 
     private static final Set<String> ALLOWED_TYPES = Set.of(
             "image/jpeg", "image/png", "image/webp", "image/gif");
-    private static final long MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
+    private static final long MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
     private final S3Client s3Client;
     private final StorageProperties props;
@@ -37,6 +37,7 @@ public class ImageStorageService {
      * @param file archivo recibido del formulario
      * @return URL pública de la imagen
      */
+    @Override
     public String uploadImage(MultipartFile file) {
         validate(file);
 
@@ -73,7 +74,7 @@ public class ImageStorageService {
         }
         if (file.getSize() > MAX_SIZE_BYTES) {
             throw new BusinessRuleException("image-too-large",
-                    "La imagen supera el tamaño máximo de 5 MB");
+                    "La imagen supera el tamaño máximo de 10 MB");
         }
         if (!ALLOWED_TYPES.contains(file.getContentType())) {
             throw new BusinessRuleException("image-invalid-type",
